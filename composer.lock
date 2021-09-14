@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "eb7d65f5815b34c7b90214aa0e6ffc53",
+    "content-hash": "02f31e5749e67cfd9814a8afc293b61e",
     "packages": [
         {
             "name": "doctrine/instantiator",
@@ -1961,6 +1961,66 @@
                 "source": "https://github.com/easy-swoole/validate/tree/2.1.2"
             },
             "time": "2021-09-08T07:47:03+00:00"
+        },
+        {
+            "name": "linkunyuan/es-utility",
+            "version": "v1.0.26",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/linkunyuan/es-utility.git",
+                "reference": "1aa169f461b2213aa80846daa36fd142f6740085"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/linkunyuan/es-utility/zipball/1aa169f461b2213aa80846daa36fd142f6740085",
+                "reference": "1aa169f461b2213aa80846daa36fd142f6740085",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "require": {
+                "easyswoole/config": ">=1.0",
+                "easyswoole/easyswoole": "^3.3",
+                "easyswoole/i18n": "^1.0",
+                "easyswoole/jwt": ">=1.1",
+                "easyswoole/log": ">=1.0",
+                "easyswoole/mysqli": ">=2.2",
+                "easyswoole/orm": ">=1.4",
+                "easyswoole/redis-pool": ">=2.1",
+                "easyswoole/task": ">=1.1",
+                "php": ">=7.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Linkunyuan\\EsUtility\\": "src",
+                    "Traits\\": "src/Traits",
+                    "Classes\\": "src/Classes"
+                },
+                "files": [
+                    "src/function.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "lamson",
+                    "email": "171004297@qq.com"
+                }
+            ],
+            "description": "utility for easyswoole",
+            "support": {
+                "issues": "https://github.com/linkunyuan/es-utility/issues",
+                "source": "https://github.com/linkunyuan/es-utility/tree/v1.0.26"
+            },
+            "time": "2021-09-08T08:49:11+00:00"
         },
         {
             "name": "myclabs/deep-copy",
