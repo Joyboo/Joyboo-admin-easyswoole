@@ -1,0 +1,49 @@
+{
+    "name": "easyswoole/http-annotation",
+    "type": "library",
+    "description": "php stander lib",
+    "keywords": [
+        "swoole",
+        "framework",
+        "async",
+        "easyswoole"
+    ],
+    "homepage": "https://www.easyswoole.com/",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "YF",
+            "email": "291323003@qq.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.1.0",
+        "ext-json": "*",
+        "ext-swoole": ">=4.4.7",
+        "ext-libxml": "*",
+        "ext-simplexml": "*",
+        "easyswoole/http": "^2.0",
+        "easyswoole/annotation": "^2.0",
+        "easyswoole/parsedown": "^1.0",
+        "easyswoole/component": "^2.2",
+        "easyswoole/validate": "^2.1",
+        "easyswoole/command": "^1.1"
+    },
+    "require-dev": {
+        "easyswoole/phpunit": "^1.0",
+        "easyswoole/swoole-ide-helper": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "EasySwoole\\HttpAnnotation\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "EasySwoole\\HttpAnnotation\\Tests\\": "tests/"
+        }
+    },
+    "bin": [
+      "bin/annotation-doc"
+    ]
+}

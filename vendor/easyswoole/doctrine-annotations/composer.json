@@ -1,0 +1,29 @@
+{
+    "name": "easyswoole/doctrine-annotations",
+    "type": "library",
+    "description": "An efficient swoole framework",
+    "keywords" : ["swoole", "framework", "async","easyswoole"],
+    "homepage" : "https://www.easyswoole.com/",
+    "license" : "MIT",
+    "authors": [
+        {
+            "name": "YF",
+            "email": "291323003@qq.com"
+        }
+    ],
+    "require-dev": {
+        "easyswoole/swoole-ide-helper": "^1.2",
+        "easyswoole/phpunit": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "EasySwoole\\DoctrineAnnotation\\": "src/",
+            "EasySwoole\\DoctrineAnnotation\\Tests\\": "tests/"
+        }
+    },
+    "require": {
+        "doctrine/lexer": "^1.2",
+        "php": "^7.1 || ^8.0",
+        "ext-tokenizer": "*"
+    }
+}

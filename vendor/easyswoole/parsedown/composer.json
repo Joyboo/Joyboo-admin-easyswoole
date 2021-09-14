@@ -1,0 +1,17 @@
+{
+    "name": "easyswoole/parsedown",
+    "type": "library",
+    "description": "",
+    "require": {
+        "php": ">=5.3.0",
+        "ext-mbstring": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^4.8.35"
+    },
+    "autoload": {
+       "psr-4": {
+           "EasySwoole\\ParserDown\\": "src/"
+       }
+    }
+}

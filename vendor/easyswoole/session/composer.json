@@ -1,0 +1,29 @@
+{
+    "name": "easyswoole/session",
+    "type": "library",
+    "description": "easyswoole component",
+    "keywords" : ["swoole", "framework", "async","easyswoole"],
+    "homepage" : "https://www.easyswoole.com/",
+    "license" : "Apache-2.0",
+    "authors": [
+        {
+            "name": "YF",
+            "email": "291323003@qq.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.1.0",
+        "easyswoole/spl": "^1.3",
+        "easyswoole/utility": "^1.1",
+        "easyswoole/component": "^2.1"
+    },
+    "require-dev": {
+        "easyswoole/swoole-ide-helper": "^1.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "EasySwoole\\Session\\": "src/",
+            "EasySwoole\\Session\\Test\\": "tests/"
+        }
+    }
+}
