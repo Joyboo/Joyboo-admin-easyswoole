@@ -1,0 +1,9 @@
+.idea
+.vscode
+.tgitconfig
+composer.lock
+produce.php
+vendor/*
+Log/*
+Temp/*
+/.phpunit.result.cache
