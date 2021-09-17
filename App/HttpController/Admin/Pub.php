@@ -3,8 +3,10 @@
 
 namespace App\HttpController\Admin;
 
-use App\Languages\Dictionary;
+use App\Common\Http\Code;
+use App\Common\Languages\Dictionary;
 use App\Model\Admin;
+use App\Common\Exception\HttpParamException;
 
 class Pub extends Base
 {
@@ -21,13 +23,14 @@ class Pub extends Base
         $request = $this->request();
 
         $data = $this->getPostParams();
-        var_dump('controller data ', $data);
-        $result = $Admin->login($data, $request);
-
-        if ($result === false) {
-            $err = $Admin->getError();
-            return $this->error($err['code'] ?? 500, $err['msg'] ?? 'error' );
+        try {
+            $result = $Admin->login($data, $request);
         }
-        $this->success($result, lang(Dictionary::ADMIN_3));
+        catch (HttpParamException $e)
+        {
+            return $this->error(Code::ERROR_3, $e->getMessage());
+        }
+
+        $this->success($result, Dictionary::ADMIN_3);
     }
 }

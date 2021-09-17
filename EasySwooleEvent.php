@@ -43,20 +43,7 @@ class EasySwooleEvent implements Event
         }
 
         // 注册语言包
-        I18N::getInstance()->addLanguage(new \App\Languages\Chinese(), 'zh');
-        I18N::getInstance()->addLanguage(new \App\Languages\English(), 'en');
-        Di::getInstance()->set(
-            SysConst::HTTP_GLOBAL_ON_REQUEST,
-            function (Request $request, Response $response) {
-            // 获取 header 中 language 参数
-            $lang = $request->getHeader('language');
-            if (empty($lang)) {
-                $lang = 'zh';
-            }
-            // 设置默认语言
-            I18N::getInstance()->setDefaultLanguage($lang);
-            return true;
-        });
+        self::i18n();
     }
 
     public static function mainServerCreate(EventRegister $register)
@@ -87,5 +74,31 @@ class EasySwooleEvent implements Event
         $register->add(EventRegister::onOpen, [Events::class, 'onOpen']);
         $register->add(EventRegister::onClose, [Events::class, 'onClose']);
         $register->add(EventRegister::onWorkerError, [Events::class, 'onError']);
+    }
+
+    public static function i18n()
+    {
+        I18N::getInstance()->addLanguage(new \App\Common\Languages\Chinese(), 'zh');
+        I18N::getInstance()->addLanguage(new \App\Common\Languages\English(), 'en');
+        I18N::getInstance()->setDefaultLanguage('zh');
+        Di::getInstance()->set(
+            SysConst::HTTP_GLOBAL_ON_REQUEST,
+            function (Request $request, Response $response) {
+                // 获取 header 中 language 参数
+                if ($request->hasHeader('accept-language')) {
+                    $langage = $request->getHeader('accept-language');
+                    if (is_array($langage)) {
+                        $langage = current($langage);
+                    }
+                    foreach (['zh', 'en'] as $lang) {
+                        if (stripos($langage, $lang) !== false) {
+                            I18N::getInstance()->setDefaultLanguage($lang);
+                            break;
+                        }
+                    }
+                }
+
+                return true;
+            });
     }
 }

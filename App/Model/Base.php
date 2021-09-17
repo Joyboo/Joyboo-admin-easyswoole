@@ -9,8 +9,6 @@ abstract class Base extends AbstractModel
 {
     public $gameid = '';
 
-    protected $_error = [];
-
     protected $tableName = '';
 
     public function __construct($data = [], $tabname = '', $gameid = '')
@@ -63,16 +61,5 @@ abstract class Base extends AbstractModel
             }
         }
         return $encode ? json_encode($extension) : $extension;
-    }
-
-    public function getError()
-    {
-        return $this->_error;
-    }
-
-    public function setError($err = [])
-    {
-        $this->_error = $err;
-        return $this;
     }
 }

@@ -3,7 +3,8 @@
 
 namespace App\Model;
 
-use App\Languages\Dictionary;
+use App\Common\Languages\Dictionary;
+use App\Common\Exception\HttpParamException;
 use Linkunyuan\EsUtility\Classes\LamJwt;
 use EasySwoole\Http\Request;
 
@@ -17,8 +18,7 @@ class Admin extends Base
     {
         if (!isset($array['username']))
         {
-            $this->_error = ['code' => 510, 'msg' => lang(Dictionary::ADMIN_1)];
-            return false;
+            throw new HttpParamException(Dictionary::ADMIN_1);
         }
         // 查询记录
         $data = $this->where('username', $array['username'])->get();
@@ -31,8 +31,7 @@ class Admin extends Base
             // 被锁定
             if (empty($data['extension']['status']) && (1 != $data['rid'] || 1 != $data[$id]))
             {
-                $this->error = ['code' => 512, 'msg' => Dictionary::ADMIN_4];
-                return false;
+                throw new HttpParamException(Dictionary::ADMIN_4);
             }
 
             // 记录登录日志
@@ -49,27 +48,8 @@ class Admin extends Base
         }
         else
         {
-            $this->_error = ['code' => 511, 'msg' => lang(Dictionary::ADMIN_2)];
-            return false;
+            throw new HttpParamException(Dictionary::ADMIN_2);
         }
     }
 
-    /**
-     * 新增登录日志
-     * @param $data
-     * @return bool
-     * @throws \EasySwoole\ORM\Exception\Exception
-     * @throws \Throwable
-     */
-    public function addAdminLog($data)
-    {
-
-        $AdminLog->data([
-            'uid' => $data['id'],
-            'name' => $data['realname'] ?: $data['username'],
-//            'ip' => request()->ip(1, true),
-        ])->save();
-        // 将登录id记录，后续更新
-        return true;
-    }
 }
