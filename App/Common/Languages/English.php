@@ -10,10 +10,13 @@ namespace App\Common\Languages;
  */
 class English extends Dictionary
 {
+    const SUCCESS = 'Success';
+
     const ADMIN_1 = 'Please Enter Username';
     const ADMIN_2 = 'Username Or Password Error';
     const ADMIN_3 = 'Login Success';
     const ADMIN_4 = 'Account is locked, Please contact the administrator';
+    const ADMID_5 = 'jwt.uid Error';
 
     const HTTP_1 = 'Please Login';
     const HTTP_2 = 'Authorization Timeout, Please Relogin';

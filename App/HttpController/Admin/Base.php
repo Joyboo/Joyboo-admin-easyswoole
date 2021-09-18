@@ -10,6 +10,18 @@ use EasySwoole\Http\Message\Status;
 
 abstract class Base extends Controller
 {
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->_initialize();
+    }
+
+    protected function _initialize()
+    {
+
+    }
+
     protected function success($result = null, $msg = null)
     {
         $this->writeJson(Code::SUCCESS, $result, $msg);

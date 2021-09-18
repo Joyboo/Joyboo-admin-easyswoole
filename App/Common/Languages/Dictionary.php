@@ -13,10 +13,13 @@ use EasySwoole\I18N\AbstractDictionary;
  */
 class Dictionary extends AbstractDictionary
 {
+    const SUCCESS = 'SUCCESS';
+
     const ADMIN_1 = 'ADMIN_1';
     const ADMIN_2 = 'ADMIN_2';
     const ADMIN_3 = 'ADMIN_3';
     const ADMIN_4 = 'ADMIN_4';
+    const ADMID_5 = 'ADMIN_5';
 
     const HTTP_1 = 'HTTP_1';
     const HTTP_2 = 'HTTP_2';

@@ -5,6 +5,7 @@ namespace App\Model;
 
 use App\Common\Languages\Dictionary;
 use App\Common\Exception\HttpParamException;
+use EasySwoole\Mysqli\QueryBuilder;
 use Linkunyuan\EsUtility\Classes\LamJwt;
 use EasySwoole\Http\Request;
 
@@ -52,4 +53,19 @@ class Admin extends Base
         }
     }
 
+    /**
+     * 关联Role分组模型
+     * @return array|mixed|null
+     * @throws \Throwable
+     */
+    public function relation()
+    {
+        $callback = function(QueryBuilder $query){
+//            $query->fields([]);
+            // todo 菜单表出来后限制字段
+            return $query;
+        };
+
+        return $this->hasOne(Role::class, $callback, 'rid', 'id');
+    }
 }
