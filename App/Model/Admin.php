@@ -27,10 +27,9 @@ class Admin extends Base
         if ($data && password_verify($array['password'], $data['password']))
         {
             $data = $data->toArray();
-            $id = $this->getPk();
 
             // 被锁定
-            if (empty($data['extension']['status']) && (1 != $data['rid'] || 1 != $data[$id]))
+            if (empty($data['extension']['status']) && (1 != $data['rid'] || 1 != $data['id']))
             {
                 throw new HttpParamException(Dictionary::ADMIN_4);
             }

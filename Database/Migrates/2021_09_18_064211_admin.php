@@ -26,7 +26,7 @@ class Admin
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `username` varchar(11) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '手机号',
   `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '密码',
-  `realname` varchar(5) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '真实姓名',
+  `realname` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '真实姓名',
   `rid` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '角色id(关联role表的主键)',
   `sort` tinyint(3) unsigned NOT NULL DEFAULT '9' COMMENT '排序(越小越前)',
   `extension` json NOT NULL COMMENT '扩展信息',
