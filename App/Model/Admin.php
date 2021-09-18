@@ -61,8 +61,7 @@ class Admin extends Base
     public function relation()
     {
         $callback = function(QueryBuilder $query){
-//            $query->fields([]);
-            // todo 菜单表出来后限制字段
+            $query->where('status', 1);
             return $query;
         };
 

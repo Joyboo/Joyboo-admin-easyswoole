@@ -58,7 +58,8 @@ abstract class Auth extends Base
         }
         // 关联的分组信息
         $relation = $data->relation ? $data->relation->toArray() : [];
-        $this->operinfo = array_merge($data->toArray(), $relation);
+        $this->operinfo = $data->toArray();
+        $this->operinfo['role'] = $relation;
 
         // 权限验证
         $this->checkAuth();

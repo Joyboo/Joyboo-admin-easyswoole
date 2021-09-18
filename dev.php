@@ -33,11 +33,11 @@ return [
 
     'MYSQL' => [
         'default' => [
-            'host'          => get_cfg_var("env.hk_dbhost"),
-            'port'          => get_cfg_var("env.hk_dbport"),
-            'user'          => get_cfg_var('env.hk_dbuser'),
-            'password'      => get_cfg_var('env.hk_dbpwd'),
-            'database'      => get_cfg_var('env.hk_dbname'),
+            'host'          => '127.0.0.1',
+            'port'          => 3306,
+            'user'          => 'root',
+            'password'      => '0987abc123',
+            'database'      => 'vben_admin',
             'timeout'       => 3,
             'charset'       => 'utf8mb4',
         ]

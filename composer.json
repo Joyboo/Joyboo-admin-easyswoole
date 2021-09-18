@@ -10,7 +10,8 @@
         "easyswoole/i18n": "^1.0",
         "easyswoole/swoole-ide-helper": "^1.3",
         "linkunyuan/es-utility": "^1.0",
-        "easyswoole/file-watcher": "^1.0"
+        "easyswoole/file-watcher": "^1.0",
+        "easyswoole/db-migrate": "^1.0"
     },
     "autoload": {
         "psr-4": {

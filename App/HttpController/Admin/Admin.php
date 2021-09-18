@@ -22,4 +22,12 @@ class Admin extends Auth
 
         $this->success($result, Dictionary::SUCCESS);
     }
+
+    /**
+     * 权限码
+     */
+    public function getPermCode()
+    {
+        $this->success([], Dictionary::SUCCESS);
+    }
 }
