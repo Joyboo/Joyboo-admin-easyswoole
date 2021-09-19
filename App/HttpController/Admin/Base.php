@@ -5,6 +5,7 @@ namespace App\HttpController\Admin;
 
 use App\Common\Languages\Dictionary;
 use App\Common\Http\Code;
+use EasySwoole\EasySwoole\Core;
 use EasySwoole\Http\AbstractInterface\Controller;
 use EasySwoole\Http\Message\Status;
 
@@ -22,8 +23,19 @@ abstract class Base extends Controller
 
     }
 
+    protected function onException(\Throwable $throwable): void
+    {
+//        \EasySwoole\EasySwoole\Trigger::getInstance()->throwable($throwable);
+        trace($throwable->getMessage(), 'error');
+        $message = Core::getInstance()->runMode() !== 'produce'
+            ? $throwable->getMessage()
+            : '网络异常，请稍后再试~';
+        $this->error(\EasySwoole\Http\Message\Status::CODE_INTERNAL_SERVER_ERROR, $message);
+    }
+
     protected function success($result = null, $msg = null)
     {
+        is_null($msg) && $msg = Dictionary::SUCCESS;
         $this->writeJson(Code::SUCCESS, $result, $msg);
     }
 

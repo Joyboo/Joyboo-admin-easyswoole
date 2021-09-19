@@ -2,7 +2,6 @@
 .vscode
 .tgitconfig
 composer.lock
-produce.php
 vendor/*
 Log/*
 Temp/*

@@ -17,6 +17,7 @@ class Admin extends Auth
             $Menu = model('Menu');
             $homePage = $Menu->where('id', $this->operinfo['extension']['homePage'])->val('path');
         }
+
         $result = [
             'id' => $this->operinfo['id'],
             'username' => $this->operinfo['username'],
@@ -25,7 +26,10 @@ class Admin extends Auth
             'desc' => $this->operinfo['extension']['desc'] ?? '',
             'homePath' => $homePage ?? '',
             'roles' => [
-                ['roleName' => $this->operinfo['name'], 'value' => $this->operinfo['value']]
+                [
+                    'roleName' => $this->operinfo['role']['name'] ?? '',
+                    'value' => $this->operinfo['role']['value'] ?? ''
+                ]
             ]
         ];
 

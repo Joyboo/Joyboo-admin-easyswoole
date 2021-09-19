@@ -5,6 +5,21 @@ namespace App\Model;
 
 class Menu extends Base
 {
+    protected function setRedirectAttr($data, $alldata)
+    {
+        return $data ? '/' . ltrim($data, '/') : '';
+    }
+
+    protected function setComponentAttr($data, $alldata)
+    {
+        return ltrim($data, '/');
+    }
+
+    protected function setNameAttr($data, $alldata)
+    {
+        return ucfirst(ltrim($data, '/'));
+    }
+
     public function menuList($ids = '')
     {
         // todo 加where 权限

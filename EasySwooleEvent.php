@@ -34,6 +34,13 @@ class EasySwooleEvent implements Event
             DbManager::getInstance()->addConnection(new Connection($MysqlConfig), $mname);
         }
 
+        DbManager::getInstance()->onQuery(function (
+            \EasySwoole\ORM\Db\Result $result,
+            \EasySwoole\Mysqli\QueryBuilder $builder,
+            $start) {
+            trace($builder->getLastQuery(), 'info', 'sql');
+        });
+
         //redis连接池注册
         $redisCfg = config('REDIS');
         foreach ($redisCfg as $rname => $rvalue)

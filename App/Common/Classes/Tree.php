@@ -33,6 +33,17 @@ class Tree
         return $this->buildMenuTree($pid);
     }
 
+    public function getAll()
+    {
+        $arr = [];
+        foreach ($this->menu as $value)
+        {
+            $arr[] = $value['pid'];
+        }
+        $min = min($arr);
+        return $this->buildMenuTree($min);
+    }
+
     /**
      * 生产多级菜单树
      * @param int $pid
