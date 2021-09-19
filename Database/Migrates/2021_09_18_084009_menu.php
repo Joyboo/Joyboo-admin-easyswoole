@@ -24,7 +24,7 @@ class Menu
   `icon` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '图标',
   `path` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '路由path',
   `component` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '组件路径',
-  `redirect` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '重定向path',
+  `redirect` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '重定向path',
   `status` tinyint(2) unsigned NOT NULL DEFAULT '1' COMMENT '状态,0-禁用，1-启用',
   `permission` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '权限标识',
   `isext` tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT '外链,0-否，1-是',
@@ -32,6 +32,7 @@ class Menu
   `keepalive` tinyint(2) unsigned NOT NULL DEFAULT '1' COMMENT '缓存,0-否，1-是',
   `affix` tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT '固钉,0-否，1-是',
   `ignore_auth` tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT '忽略权限,0-否，1-是',
+  `breadcrumb` tinyint(2) unsigned NOT NULL DEFAULT '1' COMMENT '显示在面包屑,0-否，1-是',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `sort` (`sort`)

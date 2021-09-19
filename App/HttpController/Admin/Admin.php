@@ -10,14 +10,23 @@ class Admin extends Auth
 {
     public function getUserInfo()
     {
+        // 客户端进入页,应存id
+        if (!empty($this->operinfo['extension']['homePage']))
+        {
+            /** @var \App\Model\Menu $Menu */
+            $Menu = model('Menu');
+            $homePage = $Menu->where('id', $this->operinfo['extension']['homePage'])->val('path');
+        }
         $result = [
             'id' => $this->operinfo['id'],
             'username' => $this->operinfo['username'],
             'realname' => $this->operinfo['realname'],
             'avatar' => $this->operinfo['extension']['avatar'] ?? '',
             'desc' => $this->operinfo['extension']['desc'] ?? '',
-            'homePath' => '', //  todo 替换进入页
-            'roles' => [['roleName' => $this->operinfo['summary'], 'value' => $this->operinfo['name']]]
+            'homePath' => $homePage ?? '',
+            'roles' => [
+                ['roleName' => $this->operinfo['name'], 'value' => $this->operinfo['value']]
+            ]
         ];
 
         $this->success($result, Dictionary::SUCCESS);

@@ -86,20 +86,18 @@ class EasySwooleEvent implements Event
     public static function hotReload()
     {
         // 只允许在开发环境热重载
-        if (Core::getInstance()->runMode() !== 'dev')
+        if (Core::getInstance()->runMode() === 'dev')
         {
-            return;
+            $watcher = new \EasySwoole\FileWatcher\FileWatcher();
+            // // 设置监控规则和监控目录
+            $rule = new \EasySwoole\FileWatcher\WatchRule(EASYSWOOLE_ROOT . "/App");
+            $watcher->addRule($rule);
+            $watcher->setOnChange(function () {
+                trace('检测到文件变更， worker进程reload ...');
+                ServerManager::getInstance()->getSwooleServer()->reload();
+            });
+            $watcher->attachServer(ServerManager::getInstance()->getSwooleServer());
         }
-
-        $watcher = new \EasySwoole\FileWatcher\FileWatcher();
-        // // 设置监控规则和监控目录
-        $rule = new \EasySwoole\FileWatcher\WatchRule(EASYSWOOLE_ROOT . "/App");
-        $watcher->addRule($rule);
-        $watcher->setOnChange(function () {
-            trace('检测到文件变更， worker进程reload ...');
-            ServerManager::getInstance()->getSwooleServer()->reload();
-        });
-        $watcher->attachServer(ServerManager::getInstance()->getSwooleServer());
     }
 
     public static function i18n()
