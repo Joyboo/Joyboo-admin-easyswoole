@@ -14,6 +14,8 @@ use EasySwoole\I18N\AbstractDictionary;
 class Dictionary extends AbstractDictionary
 {
     const SUCCESS = 'SUCCESS';
+    const ERROR = 'ERROR';
+    const FAIL = 'FAIL';
 
     const ADMIN_1 = 'ADMIN_1';
     const ADMIN_2 = 'ADMIN_2';

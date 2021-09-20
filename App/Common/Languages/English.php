@@ -11,6 +11,8 @@ namespace App\Common\Languages;
 class English extends Dictionary
 {
     const SUCCESS = 'Success';
+    const ERROR = 'Error';
+    const FAIL = 'Fail';
 
     const ADMIN_1 = 'Please Enter Username';
     const ADMIN_2 = 'Username Or Password Error';

@@ -117,6 +117,4 @@ abstract class Base extends Controller
         }
         $this->post = $post;
     }
-
-    // todo 封装CURD相关方法
 }

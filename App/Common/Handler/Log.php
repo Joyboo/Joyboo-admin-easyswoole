@@ -22,7 +22,8 @@ class Log implements LoggerInterface
         // 按月分目录
         $dir = $this->logDir . '/' . date('Ym');
         is_dir($dir) or @ mkdir($dir);
-        $filePath = $dir . "/log_{$category}.log";
+        // 按日分文件
+        $filePath = $dir . '/' . date('d') . "_{$category}.log";
 
         $date = date('Y-m-d H:i:s');
         $levelStr = $this->levelMap($logLevel);

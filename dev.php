@@ -58,4 +58,7 @@ return [
         'expire' => 86400 * 2, // token有效期
         'refresh' => 86400  // token有效期小于此值会自动续期
     ],
+
+    // 超级管理员id
+    'SUPER_ROLE' => [1]
 ];

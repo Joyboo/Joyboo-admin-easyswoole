@@ -11,6 +11,13 @@ use EasySwoole\Http\Request;
 
 class Admin extends Base
 {
+    /** @var bool|string 是否开启时间戳 */
+    protected  $autoTimeStamp = true;
+    /** @var bool|string 创建时间字段名 false不设置 */
+    protected  $createTime = 'instime';
+    /** @var bool|string 更新时间字段名 false不设置 */
+    protected  $updateTime = false;
+
     /**
      * 用户登录处理
      * @param array $array 用户提交的数据（需要至少包括username和password字段）

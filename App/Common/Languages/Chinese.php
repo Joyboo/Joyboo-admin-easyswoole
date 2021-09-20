@@ -11,6 +11,8 @@ namespace App\Common\Languages;
 class Chinese extends Dictionary
 {
     const SUCCESS = '成功';
+    const ERROR = '错误';
+    const FAIL = '失败';
 
     const ADMIN_1 = '请填写用户名';
     const ADMIN_2 = '用户名或密码错误';
