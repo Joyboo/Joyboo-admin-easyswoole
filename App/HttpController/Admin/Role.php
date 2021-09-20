@@ -54,6 +54,7 @@ class Role extends Auth
 
     public function getAllRoleList()
     {
-        $this->success();
+        $all = $this->Model->where('status', 1)->order('sort', 'asc')->all();
+        $this->success($all);
     }
 }

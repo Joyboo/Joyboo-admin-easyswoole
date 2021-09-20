@@ -21,6 +21,7 @@ class English extends Dictionary
     const ADMID_5 = 'jwt.uid Error';
     const ADMIN_6 = 'Operation Failed';
     const ADMIN_7 = 'Params Error';
+    const ADMIN_8 = 'Username Exist';
 
     const HTTP_1 = 'Please Login';
     const HTTP_2 = 'Authorization Timeout, Please Relogin';

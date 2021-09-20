@@ -4,6 +4,7 @@
 namespace App\HttpController\Admin;
 
 
+use App\Common\Http\Code;
 use App\Common\Languages\Dictionary;
 
 /**
@@ -47,5 +48,14 @@ class Admin extends Auth
     public function getPermCode()
     {
         $this->success([], Dictionary::SUCCESS);
+    }
+
+    /**
+     * 账号名是否存在
+     */
+    public function accountExist()
+    {
+        $count = $this->Model->where('username', $this->get['username'])->count();
+        $count > 0 ? $this->error(Code::ERROR, Dictionary::ADMIN_8) : $this->success();
     }
 }

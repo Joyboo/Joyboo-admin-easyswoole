@@ -10,10 +10,10 @@ class Menu extends Base
         return $data ? '/' . ltrim($data, '/') : '';
     }
 
-    protected function setComponentAttr($data, $alldata)
+    /*protected function setComponentAttr($data, $alldata)
     {
         return ltrim($data, '/');
-    }
+    }*/
 
     protected function setNameAttr($data, $alldata)
     {
@@ -53,7 +53,7 @@ class Menu extends Base
                 'orderNo' => intval($value['sort']),
                 'title' => $value['title'],
                 'ignoreAuth' => $value['ignore_auth'] == 1,
-                'ignoreKeepAlive' => $value['keepalive'] == 1,
+                'ignoreKeepAlive' => $value['keepalive'] != 1,
                 'affix' => $value['affix'] == 1,
                 'icon' => $value['icon'],
                 'hideMenu' => $value['isshow'] != 1,
