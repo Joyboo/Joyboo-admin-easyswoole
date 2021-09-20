@@ -23,7 +23,10 @@ class Menu extends Base
     public function menuList($ids = '')
     {
         // todo 加where 权限
-        $data = $this->where('status', 1)->order('sort', 'asc')->indexBy('id');
+        $data = $this->where([
+            'status' => 1,
+            'type' => [[0, 1], 'in']
+        ])->order('sort', 'asc')->indexBy('id');
 
         $Tree = new \App\Common\Classes\Tree($data);
         $treeData = $Tree->getTree();

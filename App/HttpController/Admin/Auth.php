@@ -20,6 +20,7 @@ abstract class Auth extends Base
 
     protected function onRequest(?string $action): bool
     {
+        parent::onRequest($action);
         return $this->checkAuthorization();
     }
 

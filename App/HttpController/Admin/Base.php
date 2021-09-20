@@ -11,22 +11,39 @@ use EasySwoole\Http\Message\Status;
 
 abstract class Base extends Controller
 {
-    public function __construct()
-    {
-        parent::__construct();
+    /** @var \App\Model\Base $Model */
+    protected $Model;
 
+    /**
+     * 实例化模型类
+     *   1.为空字符串自动实例化
+     *   2.为null不实例化
+     *   3.不为空字符串，实例化指定模型
+     * @var string
+     */
+    protected $modelName = '';
+
+    protected $get = [];
+
+    protected $post = [];
+
+    protected function onRequest(?string $action): bool
+    {
         $this->_initialize();
+        return true;
     }
 
     protected function _initialize()
     {
-
+        // 实例化模型
+        $this->instanceModel();
+        // 请求参数
+        $this->requestParams();
     }
 
     protected function onException(\Throwable $throwable): void
     {
-//        \EasySwoole\EasySwoole\Trigger::getInstance()->throwable($throwable);
-        trace($throwable->getMessage(), 'error');
+        trace($throwable->getMessage(), 'error', 'error');
         $message = Core::getInstance()->runMode() !== 'produce'
             ? $throwable->getMessage()
             : '网络异常，请稍后再试~';
@@ -75,9 +92,31 @@ abstract class Base extends Controller
         }
     }
 
-    protected function getPostParams()
+    protected function instanceModel()
     {
-        $data = $this->request()->getParsedBody();
-        return empty($data) ? $this->json() : $data;
+        if (!is_null($this->modelName))
+        {
+            if ($this->modelName === '')
+            {
+                $arr = explode('\\', static::class);
+                $this->Model = model(ucfirst(end($arr)));
+            } else {
+                $this->Model = model($this->modelName);
+            }
+        }
     }
+
+    protected function requestParams()
+    {
+        $this->get = $this->request()->getQueryParams();
+
+        $post = $this->request()->getParsedBody();
+        if (empty($post))
+        {
+            $post = $this->json();
+        }
+        $this->post = $post;
+    }
+
+    // todo 封装CURD相关方法
 }

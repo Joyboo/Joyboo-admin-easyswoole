@@ -25,6 +25,8 @@ class EasySwooleEvent implements Event
     public static function initialize()
     {
 //        date_default_timezone_set('Asia/Shanghai');
+        // 注册异常处理器
+        \EasySwoole\EasySwoole\Trigger::getInstance(new \App\Common\Handler\Trigger());
 
         // mysql连接池
         $mysqlCfg = config('MYSQL');

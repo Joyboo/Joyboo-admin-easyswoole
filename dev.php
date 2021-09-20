@@ -22,14 +22,15 @@ return [
         ]
     ],
     "LOG" => [
-        'dir' => null,
+        'dir' => EASYSWOOLE_ROOT . '/Log',
         'level' => LoggerInterface::LOG_LEVEL_DEBUG,
-        'handler' => null,
+        'handler' => new \App\Common\Handler\Log(EASYSWOOLE_ROOT . '/Log'),
         'logConsole' => true,
         'displayConsole' => true,
         'ignoreCategory' => []
     ],
     'TEMP_DIR' => null,
+//    'TEMP_DIR' => '/tmp/Joyboo-admin-easyswoole',
 
     'MYSQL' => [
         'default' => [

@@ -10,6 +10,8 @@ use App\Common\Exception\HttpParamException;
 
 class Pub extends Base
 {
+    protected $modelName = null;
+
     public function index()
     {
         return $this->login();
@@ -22,9 +24,8 @@ class Pub extends Base
 
         $request = $this->request();
 
-        $data = $this->getPostParams();
         try {
-            $result = $Admin->login($data, $request);
+            $result = $Admin->login($this->post, $request);
         }
         catch (HttpParamException $e)
         {

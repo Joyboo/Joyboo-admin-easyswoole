@@ -6,6 +6,11 @@ namespace App\HttpController\Admin;
 
 use App\Common\Languages\Dictionary;
 
+/**
+ * Class Admin
+ * @property \App\Model\Admin $Model
+ * @package App\HttpController\Admin
+ */
 class Admin extends Auth
 {
     public function getUserInfo()
