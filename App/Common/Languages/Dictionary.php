@@ -25,6 +25,7 @@ class Dictionary extends AbstractDictionary
     const ADMIN_6 = 'ADMIN_6';
     const ADMIN_7 = 'ADMIN_7';
     const ADMIN_8 = 'ADMIN_8';
+    const ADMIN_9 = 'ADMIN_9';
 
     const HTTP_1 = 'HTTP_1';
     const HTTP_2 = 'HTTP_2';

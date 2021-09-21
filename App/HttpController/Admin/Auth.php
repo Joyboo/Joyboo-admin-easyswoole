@@ -64,6 +64,12 @@ abstract class Auth extends Base
             $this->error(Code::ERROR_4, Dictionary::ADMID_5);
             return false;
         }
+        $super = config('SUPER_ROLE');
+        if (empty($data['status']) && (!in_array($data['rid'], $super)))
+        {
+            $this->error(Code::ERROR, Dictionary::ADMIN_4);
+            return false;
+        }
         // 关联的分组信息
         $relation = $data->relation ? $data->relation->toArray() : [];
         $this->operinfo = $data->toArray();
@@ -138,16 +144,30 @@ abstract class Auth extends Base
 
     public function change()
     {
-        $form = $this->post;
+        $post = $this->post;
         foreach (['id', 'column', 'status'] as $col)
         {
-            if (!isset($form[$col]))
+            if (!isset($post[$col]))
             {
                 return $this->error(Code::ERROR_5, Dictionary::ADMIN_7);
             }
         }
-        $result = $this->Model->update([$form['column'] => $form['status']], ['id' => $form['id']]);
-        $result ? $this->success() : $this->error(Code::ERROR);
+
+        $pk = $this->Model->schemaInfo()->getPkFiledName();
+        if (!isset($post[$pk]))
+        {
+            return $this->error(Code::ERROR, Dictionary::ADMIN_7);
+        }
+
+        $model = $this->Model->where($pk, $post[$pk])->get();
+        if (empty($model))
+        {
+            return $this->error(Code::ERROR, Dictionary::ADMIN_7);
+        }
+
+        $model->update([$post['column'] => $post['status']]);
+        $rowCount = $model->lastQueryResult()->getAffectedRows();
+        $rowCount ? $this->success() : $this->error(Code::ERROR);
     }
 
     public function index()

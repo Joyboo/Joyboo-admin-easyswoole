@@ -36,7 +36,8 @@ class Admin extends Base
             $data = $data->toArray();
 
             // 被锁定
-            if (empty($data['extension']['status']) && (1 != $data['rid'] || 1 != $data['id']))
+            $super = config('SUPER_ROLE');
+            if (empty($data['status']) && (!in_array($data['rid'], $super)))
             {
                 throw new HttpParamException(Dictionary::ADMIN_4);
             }

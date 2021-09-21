@@ -28,9 +28,26 @@ class Menu extends Auth
         }
 
         $all = $this->Model->order('sort', 'asc')->all();
+
         $Tree = new \App\Common\Classes\Tree($all);
 
         $this->success($Tree->getAll());
+    }
+
+    public function add()
+    {
+        // 如果name不为空，检查唯一性
+        $name = $this->post['name'] ?? '';
+        if (!empty($name))
+        {
+            /** @var \App\Model\Menu $model */
+            $model = model('Menu');
+            if ($model->where('name', $name)->count())
+            {
+                return $this->error(Code::ERROR, Dictionary::ADMIN_9);
+            }
+        }
+        parent::add();
     }
 
     /**

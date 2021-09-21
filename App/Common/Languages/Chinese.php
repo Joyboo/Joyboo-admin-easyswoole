@@ -22,6 +22,7 @@ class Chinese extends Dictionary
     const ADMIN_6 = '操作失败';
     const ADMIN_7 = '参数错误';
     const ADMIN_8 = '账号已存在';
+    const ADMIN_9 = 'name重复';
 
     const HTTP_1 = '请登录';
     const HTTP_2 = '登录状态过期，请重新登录';

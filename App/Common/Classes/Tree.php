@@ -40,7 +40,7 @@ class Tree
         {
             $arr[] = $value['pid'];
         }
-        $min = min($arr);
+        $min = min(...$arr);
         return $this->buildMenuTree($min);
     }
 
@@ -54,9 +54,13 @@ class Tree
         $result = [];
         foreach ($this->menu as $key => $value)
         {
+            if ($value instanceof \EasySwoole\ORM\AbstractModel)
+            {
+                $value = $value->toArray();
+            }
             if ($value['pid'] === $pid)
             {
-                unset($this->menu[$key]);
+//                unset($this->menu[$key]);
                 // 继续找儿子
                 if ($children = $this->buildMenuTree($value['id']))
                 {

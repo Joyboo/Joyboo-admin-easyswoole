@@ -28,8 +28,8 @@ class Admin extends Auth
             'id' => $this->operinfo['id'],
             'username' => $this->operinfo['username'],
             'realname' => $this->operinfo['realname'],
-            'avatar' => $this->operinfo['extension']['avatar'] ?? '',
-            'desc' => $this->operinfo['extension']['desc'] ?? '',
+            'avatar' => $this->operinfo['avatar'] ?? '',
+            'desc' => $this->operinfo['desc'] ?? '',
             'homePath' => $homePage ?? '',
             'roles' => [
                 [
@@ -38,6 +38,8 @@ class Admin extends Auth
                 ]
             ]
         ];
+
+        // todo 返回角色列表、游戏列表、包列表、功能配置项
 
         $this->success($result, Dictionary::SUCCESS);
     }
