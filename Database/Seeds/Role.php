@@ -33,8 +33,7 @@ class Role
         $lastId = $client->mysqlClient()->insert_id;
         $insert = [
             'username' => 'admin',
-            // password_hash('123456', PASSWORD_DEFAULT)
-            'password' => '$2y$10$667SIeM/EVCYckHQ5eIlFOPv4zoR8tv6fpruHbns5tRJOplJJrk9C',
+            'password' => password_hash('123456', PASSWORD_DEFAULT),
             'realname' => 'Joyboo',
             'rid' => $lastId,
             'sort' => 1,

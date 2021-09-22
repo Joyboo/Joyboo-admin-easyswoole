@@ -74,6 +74,7 @@ abstract class Auth extends Base
         $relation = $data->relation ? $data->relation->toArray() : [];
         $this->operinfo = $data->toArray();
         $this->operinfo['role'] = $relation;
+//        var_dump($this->operinfo);
 
         // 权限验证
         $this->checkAuth();
@@ -90,14 +91,54 @@ abstract class Auth extends Base
 
     public function add()
     {
-        $result = $this->Model->data($this->post)->save();
-        $result ? $this->success() : $this->error(Code::ERROR);
+        $this->info(__FUNCTION__);
     }
 
     public function edit()
     {
+        $this->info(__FUNCTION__);
+    }
+
+    protected function info($name)
+    {
+        $rqm = $this->request()->getMethod();
+        $method = $name . ucfirst(strtolower($rqm));
+
+        try {
+            $ref = new \ReflectionClass(static::class);
+            $methosClass = $ref->getMethod($method);
+            // 反射的是自己，this调用
+            $this->{ $methosClass->name }();
+        }
+        catch (\ReflectionException $e)
+        {
+            $this->error(Code::ERROR, Dictionary::ADMIN_7);
+        }
+    }
+
+    /**
+     * 一般用来获取添加页需要的数据
+     */
+    protected function addGet()
+    {
+        return $this->success();
+    }
+
+    /**
+     * 一般用来提交添加数据
+     * @throws \EasySwoole\ORM\Exception\Exception
+     * @throws \Throwable
+     */
+    protected function addPost()
+    {
+        $result = $this->Model->data($this->post)->save();
+        $result ? $this->success() : $this->error(Code::ERROR);
+    }
+
+    protected function editPost()
+    {
         $post = $this->post;
-        $pk = $this->Model->schemaInfo()->getPkFiledName();
+        $pk = $this->Model->getPk();
         if (!isset($post[$pk]))
         {
             return $this->error(Code::ERROR, Dictionary::ADMIN_7);
@@ -123,10 +164,26 @@ abstract class Auth extends Base
         $rowCount ? $this->success() : $this->error(Code::ERROR, Dictionary::ERROR);
     }
 
+    protected function editGet()
+    {
+        // todo 处理联合主键场景
+        $pk = $this->Model->getPk();
+        if (empty($this->get[$pk]))
+        {
+            return $this->error(Code::ERROR, Dictionary::ADMIN_7);
+        }
+        $model = $this->Model->where($pk, $this->get[$pk])->get();
+        if (empty($model))
+        {
+            return $this->error(Code::ERROR, Dictionary::ADMIN_7);
+        }
+        $this->success($model->toArray());
+    }
+
     public function del()
     {
         $get = $this->get;
-        $pk = $this->Model->schemaInfo()->getPkFiledName();
+        $pk = $this->Model->getPk();
         if (!isset($get[$pk]))
         {
             return $this->error(Code::ERROR, Dictionary::ADMIN_7);
@@ -153,7 +210,7 @@ abstract class Auth extends Base
             }
         }
 
-        $pk = $this->Model->schemaInfo()->getPkFiledName();
+        $pk = $this->Model->getPk();
         if (!isset($post[$pk]))
         {
             return $this->error(Code::ERROR, Dictionary::ADMIN_7);
@@ -184,6 +241,8 @@ abstract class Auth extends Base
             $this->Model->order(...$this->sort);
         }
 
+        $this->Model->scopeIndex();
+
         $model = $this->Model->limit($limit * ($page - 1), $limit)->withTotalCount();
         $items = $model->all($where);
 
@@ -199,7 +258,7 @@ abstract class Auth extends Base
      * 构造查询数据
      * @return array
      */
-    protected function _search():array
+    protected function _search()
     {
         return [];
     }

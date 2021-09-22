@@ -33,9 +33,9 @@ abstract class Base extends AbstractModel
         return strtolower(trim(preg_replace("/[A-Z]/", "_\\0", $name), "_"));
     }
 
-    protected function getPk()
+    public function getPk()
     {
-        $this->schemaInfo()->getPkFiledName();
+        return $this->schemaInfo()->getPkFiledName();
     }
 
     protected function getExtensionAttr($extension = '', $alldata = [])
@@ -61,5 +61,10 @@ abstract class Base extends AbstractModel
             }
         }
         return $encode ? json_encode($extension) : $extension;
+    }
+
+    public function scopeIndex()
+    {
+        return $this;
     }
 }

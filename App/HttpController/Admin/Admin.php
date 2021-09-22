@@ -6,6 +6,7 @@ namespace App\HttpController\Admin;
 
 use App\Common\Http\Code;
 use App\Common\Languages\Dictionary;
+use App\Model\Game;
 
 /**
  * Class Admin
@@ -14,6 +15,23 @@ use App\Common\Languages\Dictionary;
  */
 class Admin extends Auth
 {
+    protected function _search()
+    {
+        $where = [];
+        if (!empty($this->get['rid']))
+        {
+            $where['rid'] = $this->get['rid'];
+        }
+        foreach (['username', 'realname'] as $val)
+        {
+            if (!empty($this->get[$val]))
+            {
+                $where[$val] = ["%{$this->get[$val]}%", 'like'];
+            }
+        }
+        return $where;
+    }
+
     public function getUserInfo()
     {
         // 客户端进入页,应存id
@@ -45,19 +63,13 @@ class Admin extends Auth
     }
 
     /**
-     * 权限码
+     * 用户权限码
      */
     public function getPermCode()
     {
-        $this->success([], Dictionary::SUCCESS);
-    }
-
-    /**
-     * 账号名是否存在
-     */
-    public function accountExist()
-    {
-        $count = $this->Model->where('username', $this->get['username'])->count();
-        $count > 0 ? $this->error(Code::ERROR, Dictionary::ADMIN_8) : $this->success();
+        /** @var \App\Model\Menu $model */
+        $model = model('Menu');
+        $code = $model->permCode($this->operinfo['rid']);
+        $this->success($code, Dictionary::SUCCESS);
     }
 }

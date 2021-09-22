@@ -74,4 +74,33 @@ class Menu extends Base
         }
         return $result;
     }
+
+    /**
+     * 角色组权限码
+     * @param int $rid
+     * @return array
+     * @throws \EasySwoole\Mysqli\Exception\Exception
+     * @throws \EasySwoole\ORM\Exception\Exception
+     * @throws \Throwable
+     */
+    public function permCode($rid):array
+    {
+        $where = ['permission' => ['', '<>']];
+        $super = config('SUPER_ROLE');
+
+        if (!in_array($rid, $super))
+        {
+            /** @var Role $Role */
+            $Role = model('Role');
+            $menuIds = $Role->where('id', $rid)->val('menu');
+            if (empty($menuIds))
+            {
+                return [];
+            }
+
+            $where['id'] = [explode(',', $menuIds), 'in'];
+        }
+        $permission = $this->where($where)->column('permission');
+        return is_array($permission) ? $permission : [];
+    }
 }

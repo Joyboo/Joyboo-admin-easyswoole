@@ -10,7 +10,7 @@ namespace App\HttpController\Admin;
  */
 class Role extends Auth
 {
-    protected function _search(): array
+    protected function _search()
     {
         $where = [];
         if (!empty($this->get['name']))

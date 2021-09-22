@@ -117,4 +117,9 @@ abstract class Base extends Controller
         }
         $this->post = $post;
     }
+
+    protected function isMethod($method)
+    {
+        return strtoupper($this->request()->getMethod()) === strtoupper($method);
+    }
 }
