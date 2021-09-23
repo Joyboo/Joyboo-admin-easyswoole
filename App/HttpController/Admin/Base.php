@@ -115,7 +115,7 @@ abstract class Base extends Controller
         {
             $post = $this->json();
         }
-        $this->post = $post;
+        $this->post = $post ?: [];
     }
 
     protected function isMethod($method)

@@ -7,6 +7,7 @@ use App\Common\Http\Code;
 use App\Common\Languages\Dictionary;
 use App\Model\Admin;
 use Linkunyuan\EsUtility\Classes\LamJwt;
+use App\Common\Classes\Extension;
 
 /**
  * Class Auth
@@ -131,7 +132,8 @@ abstract class Auth extends Base
      */
     protected function addPost()
     {
-        $result = $this->Model->data($this->post)->save();
+        $data = $this->mergeExtension();
+        $result = $this->Model->data($data)->save();
         $result ? $this->success() : $this->error(Code::ERROR);
     }
 
@@ -150,11 +152,12 @@ abstract class Auth extends Base
             return $this->error(Code::ERROR, Dictionary::ADMIN_7);
         }
 
+        $data = $this->mergeExtension($model->toArray());
         /*
          * update返回的是执行语句是否成功,只有mysql语句出错时才会返回false,否则都为true
          * 所以需要getAffectedRows来判断是否更新成功
          */
-        $upd = $model->update($this->post);
+        $upd = $model->update($data);
         if ($upd === false)
         {
             trace('edit update失败: ' . $model->lastQueryResult()->getLastError());
@@ -177,7 +180,8 @@ abstract class Auth extends Base
         {
             return $this->error(Code::ERROR, Dictionary::ADMIN_7);
         }
-        $this->success($model->toArray());
+        $data = $this->explainExtension($model->toArray());
+        $this->success($data);
     }
 
     public function del()
@@ -271,5 +275,20 @@ abstract class Auth extends Base
     protected function _afterIndex($items)
     {
         return $items;
+    }
+
+    protected function mergeExtension($origin = [])
+    {
+        $Extension = new Extension();
+        $Extension->setPost($this->post);
+        $Extension->setOrigin($origin);
+        return $Extension->getSave();
+    }
+
+    protected function explainExtension($origin)
+    {
+        $Extension = new Extension();
+        $Extension->setOrigin($origin);
+        return $Extension->getTemplate();
     }
 }
