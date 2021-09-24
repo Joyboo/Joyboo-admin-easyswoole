@@ -5,6 +5,8 @@ namespace App\Model;
 
 class Menu extends Base
 {
+    public $sort = ['sort', 'asc'];
+
     protected function setRedirectAttr($data, $alldata)
     {
         return $data ? '/' . ltrim($data, '/') : '';

@@ -24,8 +24,6 @@ abstract class Auth extends Base
      */
     protected $operinfo = [];
 
-    protected $sort = ['sort', 'asc'];
-
     protected function onRequest(?string $action): bool
     {
         parent::onRequest($action);
@@ -132,7 +130,7 @@ abstract class Auth extends Base
      */
     protected function addPost()
     {
-        $data = $this->mergeExtension();
+        $data = $this->getSave($this->post);
         $result = $this->Model->data($data)->save();
         $result ? $this->success() : $this->error(Code::ERROR);
     }
@@ -147,12 +145,14 @@ abstract class Auth extends Base
         }
 
         $model = $this->Model->where($pk, $post[$pk])->get();
+
         if (empty($model))
         {
             return $this->error(Code::ERROR, Dictionary::ADMIN_7);
         }
 
-        $data = $this->mergeExtension($model->toArray());
+        $data = $this->getSave($post, $model->toArray());
+
         /*
          * update返回的是执行语句是否成功,只有mysql语句出错时才会返回false,否则都为true
          * 所以需要getAffectedRows来判断是否更新成功
@@ -169,19 +169,8 @@ abstract class Auth extends Base
 
     protected function editGet()
     {
-        // todo 处理联合主键场景
-        $pk = $this->Model->getPk();
-        if (empty($this->get[$pk]))
-        {
-            return $this->error(Code::ERROR, Dictionary::ADMIN_7);
-        }
-        $model = $this->Model->where($pk, $this->get[$pk])->get();
-        if (empty($model))
-        {
-            return $this->error(Code::ERROR, Dictionary::ADMIN_7);
-        }
-        $data = $this->explainExtension($model->toArray());
-        $this->success($data);
+        // 组件传值，不需查询
+        $this->success();
     }
 
     public function del()
@@ -240,10 +229,6 @@ abstract class Auth extends Base
         {
             $this->Model->where($where);
         }
-        if ($this->sort)
-        {
-            $this->Model->order(...$this->sort);
-        }
 
         $this->Model->scopeIndex();
 
@@ -274,21 +259,91 @@ abstract class Auth extends Base
      */
     protected function _afterIndex($items)
     {
-        return $items;
+        $result = [];
+        foreach ($items as $key => $value)
+        {
+            if ($value instanceof \EasySwoole\ORM\AbstractModel)
+            {
+                $value = $value->toArray();
+            }
+            $result[$key] = $this->getTemplate($value);
+        }
+        return $result;
     }
 
-    protected function mergeExtension($origin = [])
+    /**
+     * 将客户端提交的post合并到origin, 允许新增，少了的字段保持原值
+     * @return array
+     */
+    protected function getSave($post = [], $origin = [], $split = '.')
     {
-        $Extension = new Extension();
-        $Extension->setPost($this->post);
-        $Extension->setOrigin($origin);
-        return $Extension->getSave();
+        foreach ($post as $key => $value)
+        {
+            $deep = $this->mergeToSave($key, $value, $split);
+            $origin = array_merge_multi($origin, $deep);
+        }
+        return $origin;
     }
 
-    protected function explainExtension($origin)
+    /**
+     * 将数据库的结构拍平发送给客户端，即origin格式转化为post格式
+     */
+    protected function getTemplate($origin = [], $split = '.')
     {
-        $Extension = new Extension();
-        $Extension->setOrigin($origin);
-        return $Extension->getTemplate();
+        if (empty($origin))
+        {
+            return [];
+        }
+        $template = [];
+        foreach ($origin as $key => $value)
+        {
+            $this->toPostStruct($template, $key, $value, $split);
+        }
+
+        return $template;
+    }
+
+    private function mergeToSave($key, $value = '', $split = '.')
+    {
+        if (strpos($key, $split) === false)
+        {
+            return [$key => $value];
+        }
+
+        $result = [];
+        list ($first, $last) = explode($split, $key, 2);
+
+        if (strpos($last, $split) !== false)
+        {
+            $result[$first] = $this->mergeToSave($last, $value);
+        }
+        else
+        {
+            return [$first => [ $last => $value]];
+        }
+        return $result;
+    }
+
+    /**
+     * 将数据库extension结构转换为post类型
+     * 找到每一个叶子节点
+     */
+    private function toPostStruct(& $sign, $key, $value, $split = '.')
+    {
+        if (is_array($value))
+        {
+            foreach ($value as $lk => $lv)
+            {
+                $fullKey = $key . $split . $lk;
+                if (is_array($lv))
+                {
+                    $this->toPostStruct($sign, $fullKey, $lv, $split);
+                } else {
+                    $sign[$fullKey] = $lv;
+                }
+            }
+        } else {
+            $sign[$key] = $value;
+        }
     }
 }

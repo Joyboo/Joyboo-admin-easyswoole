@@ -11,6 +11,8 @@ abstract class Base extends AbstractModel
 
     protected $tableName = '';
 
+    public $sort = ['id', 'asc'];
+
     public function __construct($data = [], $tabname = '', $gameid = '')
     {
         if (empty($tabname)) {
@@ -65,6 +67,7 @@ abstract class Base extends AbstractModel
 
     public function scopeIndex()
     {
+        $this->order(...$this->sort);
         return $this;
     }
 }

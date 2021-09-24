@@ -13,6 +13,8 @@ class Role extends Base
     /** @var bool|string 更新时间字段名 false不设置 */
     protected  $updateTime = false;
 
+    public $sort = ['sort', 'asc'];
+
     protected function setMenuAttr($data, $alldata)
     {
         $super = config('SUPER_ROLE');

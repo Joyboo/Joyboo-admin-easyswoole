@@ -12,4 +12,6 @@ class Package extends Base
     protected  $createTime = 'instime';
     /** @var bool|string 更新时间字段名 false不设置 */
     protected  $updateTime = false;
+
+    public $sort = ['sort', 'asc'];
 }
