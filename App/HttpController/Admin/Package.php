@@ -10,12 +10,22 @@ class Package extends Auth
 {
     public function gkey()
     {
-        if (!isset($this->get['column']))
+        $rand = [
+            'logkey' => mt_rand(50, 60),
+            'paykey' => mt_rand(70, 80)
+        ];
+        if (!isset($this->get['column']) || !isset($rand[$this->get['column']]))
         {
             return $this->error(Code::ERROR);
         }
-        $action = 'get' . ucfirst($this->get['column']);
-        $key = $this->Model->$action();
-        $this->success($key);
+
+        $sign = uniqid($rand[$this->get['column']]);
+
+        $this->success($sign);
+    }
+
+    public function saveAdjustEvent()
+    {
+        var_dump($this->post['adjust']);
     }
 }

@@ -28,12 +28,17 @@ class Game extends Auth
 
     public function gkey()
     {
-        if (!isset($this->get['column']))
+        $rand = [
+            'logkey' => mt_rand(10, 20),
+            'paykey' => mt_rand(30, 40)
+        ];
+        if (!isset($this->get['column']) || !isset($rand[$this->get['column']]))
         {
             return $this->error(Code::ERROR);
         }
-        $action = 'get' . ucfirst($this->get['column']);
-        $key = $this->Model->$action();
-        $this->success($key);
+
+        $sign = uniqid($rand[$this->get['column']]);
+
+        $this->success($sign);
     }
 }
