@@ -60,5 +60,10 @@ return [
     ],
 
     // 超级管理员id
-    'SUPER_ROLE' => [1]
+    'SUPER_ROLE' => [1],
+
+    'UPLOAD' => [
+        'dir' => EASYSWOOLE_ROOT . '/Public/',
+        'domain' => 'http://image-admin-easyswoole.develop',
+    ],
 ];

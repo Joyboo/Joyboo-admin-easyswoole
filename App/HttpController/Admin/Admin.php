@@ -3,10 +3,7 @@
 
 namespace App\HttpController\Admin;
 
-
-use App\Common\Http\Code;
 use App\Common\Languages\Dictionary;
-use App\Model\Game;
 
 /**
  * Class Admin
@@ -30,6 +27,16 @@ class Admin extends Auth
             }
         }
         return $where;
+    }
+
+    protected function _afterIndex($items)
+    {
+        $items = parent::_afterIndex($items);
+
+        /** @var \App\Model\Role $Role */
+        $Role = model('Role');
+        $roleList = $Role->getRoleListAll();
+        return ['items' => $items, 'roleList' => $roleList];
     }
 
     public function getUserInfo()
@@ -57,7 +64,27 @@ class Admin extends Auth
             ]
         ];
 
-        // todo 返回角色列表、游戏列表、包列表、功能配置项
+        $super = $this->isSuper();
+        // 游戏和包
+        /** @var \App\Model\Game $Game */
+        $Game = model('Game');
+        /** @var \App\Model\Package $Package */
+        $Package = model('Package');
+        if (! $super)
+        {
+            $gameids = explode(',', $this->operinfo['extension']['gameids'] ?? '');
+            $Game->where(['id' => [$gameids, 'in']]);
+
+            $pkg = explode(',', $this->operinfo['extension']['pkgbnd'] ?? '');
+            $Package->where(['pkgbnd' => [$pkg, 'in']]);
+        }
+        $result['gameList'] = $Game->where('status', 1)->order(...$Game->sort)->field(['id', 'name'])->all();
+        $result['pkgList'] = $Package->field(['gameid', 'pkgbnd', 'name', 'id'])->order(...$Game->sort)->all();
+
+        $result['config'] = [
+            // 图片上传路径
+            'imageDomain' => config('UPLOAD.domain'),
+        ];
 
         $this->success($result, Dictionary::SUCCESS);
     }
@@ -71,5 +98,45 @@ class Admin extends Auth
         $model = model('Menu');
         $code = $model->permCode($this->operinfo['rid']);
         $this->success($code, Dictionary::SUCCESS);
+    }
+
+    protected function addGet()
+    {
+        $result = $this->_view();
+        $this->success($result);
+    }
+
+    protected function _afterEditGet($items)
+    {
+        unset($items['password']);
+        $result = $this->_view();
+        $result['result'] = $items;
+        return $result;
+    }
+
+    protected function _view()
+    {
+        $result = [];
+        // 角色组，菜单
+        /** @var \App\Model\Role $Role */
+        $Role = model('Role');
+        /** @var \App\Model\Menu $Menu */
+        $Menu = model('Menu');
+        $roleAll = $Role->getRoleListAll();
+        $result['roleList'] = array_map(function ($val) {
+            return ['label' => $val['name'], 'value' => $val['id']];
+        }, $roleAll);
+        $result['menuList'] = $Menu->menuList();
+        return $result;
+    }
+
+    protected function getSave($post = [], $origin = [], $split = '.')
+    {
+        $data = parent::getSave($post, $origin, $split);
+        // 留空，不修改密码
+        if (empty($post['password'])) {
+            unset($data['password']);
+        }
+        return $data;
     }
 }

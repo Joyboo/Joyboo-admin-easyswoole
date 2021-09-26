@@ -55,7 +55,7 @@ class Menu extends Auth
      */
     public function getMenuList()
     {
-        $menu = $this->Model->menuList();
+        $menu = $this->Model->getRouter();
         $this->success($menu);
     }
 }

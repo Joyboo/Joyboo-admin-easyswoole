@@ -92,6 +92,24 @@ abstract class Base extends Controller
         }
     }
 
+    protected function writeUpload($url, $code = 200, $msg = '')
+    {
+        if (!$this->response()->isEndResponse()) {
+
+            $data = [
+                'code' => $code,
+                'url' => $url,
+                'message' => $msg
+            ];
+            $this->response()->write(json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+            $this->response()->withHeader('Content-type', 'application/json;charset=utf-8');
+            $this->response()->withStatus(Status::CODE_OK);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     protected function instanceModel()
     {
         if (!is_null($this->modelName))

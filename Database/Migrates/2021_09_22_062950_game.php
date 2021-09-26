@@ -23,7 +23,7 @@ class Game
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键编号',
   `name` varchar(60) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '名称',
   `sort` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '排序号',
-  `status` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '状态: 0-启用，1-禁用',
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '状态: 0-禁用，1-启用',
   `instime` int(10) unsigned NOT NULL COMMENT '录入时间',
   `itime` timestamp GENERATED ALWAYS AS (from_unixtime(`instime`)) VIRTUAL NULL COMMENT 'instime的时间格式',
   `extension` json NOT NULL COMMENT '扩展信息',

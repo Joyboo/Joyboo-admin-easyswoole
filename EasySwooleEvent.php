@@ -9,6 +9,7 @@ use EasySwoole\EasySwoole\Swoole\EventRegister;
 use EasySwoole\RedisPool\RedisPool;
 use EasySwoole\Socket\Dispatcher;
 use EasySwoole\Socket\Config as SocketConfig;
+use EasySwoole\Utility\File;
 use Swoole\Websocket\Server as WSserver;
 use Swoole\WebSocket\Frame;
 use EasySwoole\Redis\Config\RedisConfig;
@@ -27,6 +28,15 @@ class EasySwooleEvent implements Event
 //        date_default_timezone_set('Asia/Shanghai');
         // 注册异常处理器
         \EasySwoole\EasySwoole\Trigger::getInstance(new \App\Common\Handler\Trigger());
+
+        $files = File::scanDirectory(EASYSWOOLE_ROOT . '/App/Common/Config');
+        if (is_array($files))
+        {
+            foreach ($files['files'] as $file)
+            {
+                Config::getInstance()->loadFile($file);
+            }
+        }
 
         // mysql连接池
         $mysqlCfg = config('MYSQL');
@@ -58,6 +68,9 @@ class EasySwooleEvent implements Event
     public static function mainServerCreate(EventRegister $register)
     {
         self::setWebsocet($register);
+
+        // 热重载
+        self::hotReload();
     }
 
     /**
@@ -83,9 +96,6 @@ class EasySwooleEvent implements Event
         $register->add(EventRegister::onOpen, [Events::class, 'onOpen']);
         $register->add(EventRegister::onClose, [Events::class, 'onClose']);
         $register->add(EventRegister::onWorkerError, [Events::class, 'onError']);
-
-        // 热重载
-        self::hotReload();
     }
 
     /**

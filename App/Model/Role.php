@@ -38,4 +38,9 @@ class Role extends Base
         $isSuper = $super && in_array($data['id'], $super);
         return !$isSuper;
     }
+
+    public function getRoleListAll()
+    {
+        return $this->where('status', 1)->order(...$this->sort)->field(['id', 'name'])->all();
+    }
 }

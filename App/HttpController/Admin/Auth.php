@@ -8,6 +8,7 @@ use App\Common\Languages\Dictionary;
 use App\Model\Admin;
 use Linkunyuan\EsUtility\Classes\LamJwt;
 use App\Common\Classes\Extension;
+use EasySwoole\Http\Exception\FileException;
 
 /**
  * Class Auth
@@ -23,6 +24,8 @@ abstract class Auth extends Base
      * @access protected
      */
     protected $operinfo = [];
+
+    protected $uploadKey = 'file';
 
     protected function onRequest(?string $action): bool
     {
@@ -84,6 +87,12 @@ abstract class Auth extends Base
     protected function checkAuth()
     {
         // todo 权限验证
+    }
+
+    protected function isSuper()
+    {
+        $super = config('SUPER_ROLE');
+        return in_array($this->operinfo['rid'], $super);
     }
 
     // todo 以下方法需要权限限制
@@ -162,15 +171,28 @@ abstract class Auth extends Base
         {
             trace('edit update失败: ' . $model->lastQueryResult()->getLastError());
         }
+
         // 影响行数
         $rowCount = $model->lastQueryResult()->getAffectedRows();
-        $rowCount ? $this->success() : $this->error(Code::ERROR, Dictionary::ERROR);
+        $rowCount ? $this->success() : $this->error(Code::ERROR, Dictionary::FAIL);
     }
 
     protected function editGet()
     {
-        // 组件传值，不需查询
-        $this->success();
+        // todo 处理联合主键场景
+        $pk = $this->Model->getPk();
+        if (empty($this->get[$pk]))
+        {
+            return $this->error(Code::ERROR, Dictionary::ADMIN_7);
+        }
+        $model = $this->Model->where($pk, $this->get[$pk])->get();
+        if (empty($model))
+        {
+            return $this->error(Code::ERROR, Dictionary::ADMIN_7);
+        }
+        $row = $this->getTemplate($model->toArray());
+        $data = $this->_afterEditGet($row);
+        $this->success($data);
     }
 
     public function del()
@@ -243,6 +265,35 @@ abstract class Auth extends Base
         $this->success(['items' => $items, 'total' => $total]);
     }
 
+    public function upload()
+    {
+        try {
+            /** @var \EasySwoole\Http\Message\UploadFile $file */
+            $file = $this->request()->getUploadedFile($this->uploadKey);
+
+            // todo 文件校验
+            $fileType = $file->getClientMediaType();
+
+            $clientFileName = $file->getClientFilename();
+            $arr = explode('.', $clientFileName);
+            $suffix = end($arr);
+
+            $dir = rtrim(config('UPLOAD.dir'), '/') . '/image/';
+            $fileName = uniqid('avatar_') . '.' . $suffix;
+
+            $fullPath = $dir . $fileName;
+            $file->moveTo($fullPath);
+//            chmod($fullPath, 0777);
+
+            $url = '/image/' . $fileName;
+            $this->writeUpload($url);
+        }
+        catch (FileException $e)
+        {
+            $this->writeUpload('', Code::ERROR, '上传失败: ' . $e->getMessage());
+        }
+    }
+
     /**
      * 构造查询数据
      * @return array
@@ -269,6 +320,11 @@ abstract class Auth extends Base
             $result[$key] = $this->getTemplate($value);
         }
         return $result;
+    }
+
+    protected function _afterEditGet($data)
+    {
+        return $data;
     }
 
     /**

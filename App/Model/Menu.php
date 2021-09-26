@@ -22,6 +22,13 @@ class Menu extends Base
         return ucfirst(ltrim($data, '/'));
     }
 
+    public function getRouter($ids = '')
+    {
+        $treeData = $this->menuList($ids);
+        $router = $this->makeRouter($treeData);
+        return $router;
+    }
+
     public function menuList($ids = '')
     {
         // todo 加where 权限
@@ -31,9 +38,7 @@ class Menu extends Base
         ])->order('sort', 'asc')->indexBy('id');
 
         $Tree = new \App\Common\Classes\Tree($data);
-        $treeData = $Tree->getTree();
-        $router = $this->makeRouter($treeData);
-        return $router;
+        return  $Tree->getTree();
     }
 
     /**

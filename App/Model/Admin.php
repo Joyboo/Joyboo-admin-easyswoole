@@ -20,6 +20,15 @@ class Admin extends Base
 
     public $sort = ['sort', 'asc'];
 
+    protected function setPasswordAttr($password = '', $alldata = [])
+    {
+        if($password != '')
+        {
+            return password_hash($password, PASSWORD_DEFAULT);
+        }
+        return false;
+    }
+
     /**
      * 用户登录处理
      * @param array $array 用户提交的数据（需要至少包括username和password字段）
