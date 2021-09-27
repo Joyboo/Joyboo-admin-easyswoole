@@ -18,20 +18,18 @@ class Menu extends Auth
     {
         $input = $this->get;
 
+        $where = [];
         if (!empty($input['title']))
         {
-            $this->Model->where(['title' => ["%{$input['title']}%", 'like']]);
+            $where['title'] = ["%{$input['title']}%", 'like'];
         }
         if (isset($input['status']) && $input['status'] !== '')
         {
-            $this->Model->where('status', $input['status']);
+            $where['status'] = $input['status'];
         }
 
-        $all = $this->Model->order('sort', 'asc')->all();
-
-        $Tree = new \App\Common\Classes\Tree($all);
-
-        $this->success($Tree->getAll());
+        $result = $this->Model->menuAll($where);
+        $this->success($result);
     }
 
     public function add()

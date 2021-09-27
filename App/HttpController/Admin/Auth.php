@@ -89,10 +89,13 @@ abstract class Auth extends Base
         // todo 权限验证
     }
 
-    protected function isSuper()
+    protected function isSuper($rid = null)
     {
+        if (is_null($rid)) {
+            $rid = $this->operinfo['rid'];
+        }
         $super = config('SUPER_ROLE');
-        return in_array($this->operinfo['rid'], $super);
+        return in_array($rid, $super);
     }
 
     // todo 以下方法需要权限限制

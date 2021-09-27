@@ -3,6 +3,8 @@
 
 namespace App\Model;
 
+use App\Common\Classes\Tree;
+
 class Menu extends Base
 {
     public $sort = ['sort', 'asc'];
@@ -22,23 +24,35 @@ class Menu extends Base
         return ucfirst(ltrim($data, '/'));
     }
 
-    public function getRouter($ids = '')
+    public function getRouter($where = [])
     {
-        $treeData = $this->menuList($ids);
+        $treeData = $this->menuList($where);
         $router = $this->makeRouter($treeData);
         return $router;
     }
 
-    public function menuList($ids = '')
+    public function menuList($where = [])
     {
         // todo 加where 权限
         $data = $this->where([
             'status' => 1,
             'type' => [[0, 1], 'in']
-        ])->order('sort', 'asc')->indexBy('id');
+        ])->order(...$this->sort)->indexBy('id');
 
-        $Tree = new \App\Common\Classes\Tree($data);
+        $Tree = new Tree($data);
         return  $Tree->getTree();
+    }
+
+    public function menuAll($where = [])
+    {
+        if ($where) {
+            $this->where($where);
+        }
+        $all = $this->where('status', 1)->order(...$this->sort)->all();
+
+        $Tree = new Tree($all);
+
+        return $Tree->getAll();
     }
 
     /**

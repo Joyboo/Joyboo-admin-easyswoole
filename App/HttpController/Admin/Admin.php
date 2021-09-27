@@ -3,7 +3,9 @@
 
 namespace App\HttpController\Admin;
 
+use App\Common\Http\Code;
 use App\Common\Languages\Dictionary;
+use Linkunyuan\EsUtility\Classes\LamJwt;
 
 /**
  * Class Admin
@@ -41,6 +43,13 @@ class Admin extends Auth
 
     public function getUserInfo()
     {
+        $upload = config('UPLOAD');
+
+        $config = [
+            // 图片上传路径
+            'imageDomain' => $upload['domain'],
+        ];
+
         // 客户端进入页,应存id
         if (!empty($this->operinfo['extension']['homePage']))
         {
@@ -48,12 +57,16 @@ class Admin extends Auth
             $Menu = model('Menu');
             $homePage = $Menu->where('id', $this->operinfo['extension']['homePage'])->val('path');
         }
+        $avatar = $this->operinfo['avatar'] ?? '';
+        if ($avatar) {
+            $avatar = $config['imageDomain'] . $avatar;
+        }
 
         $result = [
             'id' => $this->operinfo['id'],
             'username' => $this->operinfo['username'],
             'realname' => $this->operinfo['realname'],
-            'avatar' => $this->operinfo['avatar'] ?? '',
+            'avatar' => $avatar,
             'desc' => $this->operinfo['desc'] ?? '',
             'homePath' => $homePage ?? '',
             'roles' => [
@@ -81,10 +94,7 @@ class Admin extends Auth
         $result['gameList'] = $Game->where('status', 1)->order(...$Game->sort)->field(['id', 'name'])->all();
         $result['pkgList'] = $Package->field(['gameid', 'pkgbnd', 'name', 'id'])->order(...$Game->sort)->all();
 
-        $result['config'] = [
-            // 图片上传路径
-            'imageDomain' => config('UPLOAD.domain'),
-        ];
+        $result['config'] = $config;
 
         $this->success($result, Dictionary::SUCCESS);
     }
@@ -102,19 +112,21 @@ class Admin extends Auth
 
     protected function addGet()
     {
-        $result = $this->_view();
+        $result = $this->_views();
         $this->success($result);
     }
 
     protected function _afterEditGet($items)
     {
+        $result = $this->_views();
+
         unset($items['password']);
-        $result = $this->_view();
         $result['result'] = $items;
+
         return $result;
     }
 
-    protected function _view()
+    protected function _views()
     {
         $result = [];
         // 角色组，菜单
@@ -123,10 +135,33 @@ class Admin extends Auth
         /** @var \App\Model\Menu $Menu */
         $Menu = model('Menu');
         $roleAll = $Role->getRoleListAll();
-        $result['roleList'] = array_map(function ($val) {
-            return ['label' => $val['name'], 'value' => $val['id']];
-        }, $roleAll);
+
+        $roleList = $checkByRid = [];
+        foreach ($roleAll as $value)
+        {
+            $roleList[] = ['label' => $value['name'], 'value' => $value['id']];
+            if ($this->isSuper($value['id']))
+            {
+                $checkByRid[$value['id']] = true;
+            } else {
+                $arr = [];
+                $menu = explode(',', $value['menu']);
+                foreach ($menu as $val)
+                {
+                    if ($val !== '')
+                    {
+                        $arr[] = intval($val);
+                    }
+                }
+                $checkByRid[$value['id']] = $arr;
+            }
+        }
+        $result['roleList'] = $roleList;
+        // 区分两种Tree数据，一种仅显示菜单，提供给homePath选中，一种是所有的权限展示
         $result['menuList'] = $Menu->menuList();
+        $result['roleAuth'] = $Menu->menuAll();
+        // 每个角色组有哪些权限
+        $result['checkByRid'] = $checkByRid;
         return $result;
     }
 
@@ -138,5 +173,26 @@ class Admin extends Auth
             unset($data['password']);
         }
         return $data;
+    }
+
+    public function getToken()
+    {
+        // 此接口比较重要，只允许超级管理员调用
+        if (! $this->isSuper())
+        {
+            return $this->error(Code::CODE_FORBIDDEN);
+        }
+        if (!isset($this->get['id']))
+        {
+            return $this->error(Code::ERROR_3, Dictionary::ADMIN_7);
+        }
+        $id = $this->get['id'];
+        $isExtsis = $this->Model->where(['id' => $id, 'status' => 1])->count();
+        if (!$isExtsis)
+        {
+            return $this->error(Code::ERROR_4, Dictionary::ADMIN_7);
+        }
+        $token = LamJwt::getToken(['id' => $id], config('auth.jwtkey'), 3600);
+        $this->success($token);
     }
 }
