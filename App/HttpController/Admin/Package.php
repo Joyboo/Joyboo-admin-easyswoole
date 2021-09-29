@@ -8,6 +8,20 @@ use App\Common\Http\Code;
 
 class Package extends Auth
 {
+    protected function _search()
+    {
+        if (isset($this->get['gameid']))
+        {
+            $this->Model->where('gameid', $this->get['gameid']);
+        }
+        if (isset($this->get['name']))
+        {
+            $name = "%{$this->get['name']}%";
+            $this->Model->where("(name like ? or pkgbnd like ?)", [$name, $name]);
+        }
+        return false;
+    }
+
     public function gkey()
     {
         $rand = [

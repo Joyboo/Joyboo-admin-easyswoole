@@ -247,6 +247,15 @@ abstract class Auth extends Base
     {
         $page = $this->get['page'] ?? 1;          // 当前页码
         $limit = $this->get['pageSize'] ?? 20;    // 每页多少条数据
+        $sortField = $this->get['_sortField'] ?? ''; // 排序字段
+        $sortValue = $this->get['_sortValue'] ?? ''; // 'ascend' | 'descend'
+
+        if ($sortField && $sortValue) {
+            // 去掉前端的end后缀
+//            $sortValue = substr($sortValue, 0, -3);
+            $sortValue = str_replace('end', '', $sortValue);
+            $this->Model->order($sortField, $sortValue);
+        }
 
         if ($where = $this->_search())
         {

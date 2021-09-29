@@ -67,7 +67,6 @@ abstract class Base extends AbstractModel
 
     public function scopeIndex()
     {
-        $this->order(...$this->sort);
         return $this;
     }
 }
