@@ -44,4 +44,12 @@ class Game extends Base
         }
         return '';
     }
+
+    public function getGameAll($where = [])
+    {
+        if ($where) {
+            $this->where($where);
+        }
+        return $this->where('status', 1)->order(...$this->sort)->all('id');
+    }
 }

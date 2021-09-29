@@ -26,46 +26,61 @@ class Package extends Auth
 
     protected function _afterEditGet($data)
     {
-        // 匹配前缀
-        $prefix = 'extension.adjust.event';
-
-        $adjust = [];
-        foreach ($data as $key => $value)
-        {
-            $index = strpos($key, $prefix);
-            if ($index !== false)
-            {
-                // 起始位置
-                $start = $index + strlen($prefix) + 1;
-                $adjust[] = [
-                    'key' => substr($key, $start),
-                    'value' => $value
-                ];
-                unset($data[$key]);
-            }
+        if (is_array($data['extension']['adjust']['event'])) {
+            $data['extension']['adjust']['event'] = $this->unformatAdjust($data['extension']['adjust']['event']);
         }
-        $data[$prefix] = $adjust;
-
-        $result = [
-            // 常规数据
-            'data' => $data,
-            //
-        ];
+        if (is_string($data['extension']['qzf']['pf'])) {
+            $data['extension']['qzf']['pf'] = explode(',', $data['extension']['qzf']['pf']);
+        }
         return $data;
     }
 
-    protected function addGet()
+    protected function _writeBefore()
     {
-        return $this->success();
+        if (is_array($this->post['extension']['qzf']['pf']))
+        {
+            $this->post['extension']['qzf']['pf'] = implode(',', $this->post['extension']['qzf']['pf']);
+        }
+        $this->post['extension']['adjust']['event'] = $this->formatAdjust($this->post['extension']['adjust']['event']);
     }
 
-    protected function view()
-    {
-
-    }
-
+    // 单纯的保存adjust事件
     public function saveAdjustEvent()
     {
-        var_dump($this->post['adjust']);
+        $adjust = $this->formatAdjust($this->post['adjust']);
+        $model = $this->Model->where('id', $this->post['id'])->get();
+        $extension = $model->getAttr('extension');
+        // ['extension']['adjust']['event'] 比较深
+        $extension['adjust']['event'] = $adjust;
+        $model->extension = $extension;
+        $model->update();
+        $this->success();
+    }
+
+    protected function formatAdjust($event)
+    {
+        $data = [];
+        foreach($event as $ent)
+        {
+            if (empty($ent['Key']) || empty($ent['Value']))
+            {
+                continue;
+            }
+            $data[$ent['Key']] = $ent['Value'];
+        }
+        return $data;
+    }
+
+    protected function unformatAdjust($event)
+    {
+        $result = [];
+        foreach ($event as $key => $value)
+        {
+            $result[] = [
+                'Key' => $key,
+                'Value' => $value
+            ];
+        }
+        return $result;
     }
 }

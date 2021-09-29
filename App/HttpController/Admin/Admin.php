@@ -45,10 +45,8 @@ class Admin extends Auth
     {
         $upload = config('UPLOAD');
 
-        $config = [
-            // 图片上传路径
-            'imageDomain' => $upload['domain'],
-        ];
+        // 图片上传路径
+        $config = ['imageDomain' => $upload['domain']];
 
         // 客户端进入页,应存id
         if (!empty($this->operinfo['extension']['homePage']))
@@ -134,7 +132,24 @@ class Admin extends Auth
         $Role = model('Role');
         /** @var \App\Model\Menu $Menu */
         $Menu = model('Menu');
+        /** @var \App\Model\Game $Game */
+        $Game = model('Game');
+        /** @var \App\Model\Package $Package */
+        $Package = model('Package');
         $roleAll = $Role->getRoleListAll();
+        $gameAll = $Game->getGameAll();
+        $packageAll = $Package->getPackageAll();
+        $gameItem = [];
+        foreach ($gameAll as $value)
+        {
+            $gameItem[] = [
+                'value' => $value['id'],
+                'label' => $value['name'] . '(id: ' . $value['id'] . ')',
+                'package' => array_filter(function ($val) use ($value) {
+                    return $value['id'] != $val['gameid'];
+                }, $packageAll),
+            ];
+        }
 
         $roleList = $checkByRid = [];
         foreach ($roleAll as $value)
@@ -162,17 +177,16 @@ class Admin extends Auth
         $result['roleAuth'] = $Menu->menuAll();
         // 每个角色组有哪些权限
         $result['checkByRid'] = $checkByRid;
+        $result['gameItem'] = $gameItem;
         return $result;
     }
 
-    protected function getSave($post = [], $origin = [], $split = '.')
+    protected function _writeBefore()
     {
-        $data = parent::getSave($post, $origin, $split);
         // 留空，不修改密码
-        if (empty($post['password'])) {
-            unset($data['password']);
+        if (empty($this->post['password'])) {
+            unset($this->post['password']);
         }
-        return $data;
     }
 
     public function getToken()

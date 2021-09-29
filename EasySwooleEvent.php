@@ -9,7 +9,6 @@ use EasySwoole\EasySwoole\Swoole\EventRegister;
 use EasySwoole\RedisPool\RedisPool;
 use EasySwoole\Socket\Dispatcher;
 use EasySwoole\Socket\Config as SocketConfig;
-use EasySwoole\Utility\File;
 use Swoole\Websocket\Server as WSserver;
 use Swoole\WebSocket\Frame;
 use EasySwoole\Redis\Config\RedisConfig;
@@ -29,14 +28,8 @@ class EasySwooleEvent implements Event
         // 注册异常处理器
         \EasySwoole\EasySwoole\Trigger::getInstance(new \App\Common\Handler\Trigger());
 
-        $files = File::scanDirectory(EASYSWOOLE_ROOT . '/App/Common/Config');
-        if (is_array($files))
-        {
-            foreach ($files['files'] as $file)
-            {
-                Config::getInstance()->loadFile($file);
-            }
-        }
+        // // 是否可以修改Config实现方式将某一个文件的配置放进主配置的XX下标 ???
+        Config::getInstance()->loadDir(EASYSWOOLE_ROOT . '/App/Common/Config');
 
         // mysql连接池
         $mysqlCfg = config('MYSQL');

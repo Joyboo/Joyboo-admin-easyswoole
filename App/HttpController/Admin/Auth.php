@@ -142,13 +142,14 @@ abstract class Auth extends Base
      */
     protected function addPost()
     {
-        $data = $this->getSave($this->post);
-        $result = $this->Model->data($data)->save();
+        $this->_writeBefore();
+        $result = $this->Model->data($this->post)->save();
         $result ? $this->success() : $this->error(Code::ERROR);
     }
 
     protected function editPost()
     {
+        $this->_writeBefore();
         $post = $this->post;
         $pk = $this->Model->getPk();
         if (!isset($post[$pk]))
@@ -163,13 +164,11 @@ abstract class Auth extends Base
             return $this->error(Code::ERROR, Dictionary::ADMIN_7);
         }
 
-        $data = $this->getSave($post, $model->toArray());
-
         /*
          * update返回的是执行语句是否成功,只有mysql语句出错时才会返回false,否则都为true
          * 所以需要getAffectedRows来判断是否更新成功
          */
-        $upd = $model->update($data);
+        $upd = $model->update($post);
         if ($upd === false)
         {
             trace('edit update失败: ' . $model->lastQueryResult()->getLastError());
@@ -193,8 +192,7 @@ abstract class Auth extends Base
         {
             return $this->error(Code::ERROR, Dictionary::ADMIN_7);
         }
-        $row = $this->getTemplate($model->toArray());
-        $data = $this->_afterEditGet($row);
+        $data = $this->_afterEditGet($model->toArray());
         $this->success($data);
     }
 
@@ -282,7 +280,10 @@ abstract class Auth extends Base
             $suffix = end($arr);
 
             $dir = rtrim(config('UPLOAD.dir'), '/') . '/image/';
-            $fileName = uniqid('avatar_') . '.' . $suffix;
+            // 当前控制器名做前缀
+            $arr = explode('\\', static::class);
+            $prefix = end($arr);
+            $fileName = uniqid($prefix . '_') . '.' . $suffix;
 
             $fullPath = $dir . $fileName;
             $file->moveTo($fullPath);
@@ -295,6 +296,25 @@ abstract class Auth extends Base
         {
             $this->writeUpload('', Code::ERROR, '上传失败: ' . $e->getMessage());
         }
+    }
+
+    public function unlink()
+    {
+//        $suffix = pathinfo($this->post['url'], PATHINFO_EXTENSION);
+        $info = pathinfo($this->post['url']);
+        $filename = $info['basename'];
+        // todo 文件校验, 比如子类为哪个控制器，只允许删除此前缀的
+        $suffix = $info['extension'];
+
+        // 指定目录
+        $dir = rtrim(config('UPLOAD.dir'), '/') . '/image/';
+
+        $file = $dir . $filename;
+        if (is_file($file))
+        {
+            @unlink($file);
+        }
+        $this->success();
     }
 
     /**
@@ -330,11 +350,16 @@ abstract class Auth extends Base
         return $data;
     }
 
+    protected function _writeBefore()
+    {
+
+    }
+
     /**
      * 将客户端提交的post合并到origin, 允许新增，少了的字段保持原值
      * @return array
      */
-    protected function getSave($post = [], $origin = [], $split = '.')
+    /*protected function getSave($post = [], $origin = [], $split = '.')
     {
         foreach ($post as $key => $value)
         {
@@ -342,7 +367,7 @@ abstract class Auth extends Base
             $origin = array_merge_multi($origin, $deep);
         }
         return $origin;
-    }
+    }*/
 
     /**
      * 将数据库的结构拍平发送给客户端，即origin格式转化为post格式
