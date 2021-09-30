@@ -41,6 +41,7 @@ class Role extends Base
 
     public function getRoleListAll()
     {
-        return $this->where('status', 1)->order(...$this->sort)->field(['id', 'name', 'menu'])->indexBy('id');
+        // 如果id不连续，indexBy返回给客户端就是一个json
+        return $this->where('status', 1)->order(...$this->sort)->field(['id', 'name', 'menu'])->all('id');
     }
 }

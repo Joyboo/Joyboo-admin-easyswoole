@@ -62,6 +62,7 @@ class Admin extends Base
                 'ip' => ip2long(ip($request)),
             ])->save();
 
+            // todo 将当前版本放进jwt，以此实现客户端版本校验
             $token = LamJwt::getToken(['id' => $data['id']], config('auth.jwtkey'), config('auth.expire'));
             return ['token' => $token];
         }

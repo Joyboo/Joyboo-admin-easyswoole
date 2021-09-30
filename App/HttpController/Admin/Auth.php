@@ -292,7 +292,7 @@ abstract class Auth extends Base
             // 当前控制器名做前缀
             $arr = explode('\\', static::class);
             $prefix = end($arr);
-            $fileName = uniqid($prefix . '_') . '.' . $suffix;
+            $fileName = uniqid($prefix . '_', true) . '.' . $suffix;
 
             $fullPath = $dir . $fileName;
             $file->moveTo($fullPath);

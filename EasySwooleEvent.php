@@ -64,6 +64,8 @@ class EasySwooleEvent implements Event
 
         // 热重载
         self::hotReload();
+
+//        WeChatManager::getInstance()->register();
     }
 
     /**
