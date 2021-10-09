@@ -14,6 +14,8 @@ use App\Common\Languages\Dictionary;
  */
 class Menu extends Auth
 {
+    protected $_uckAction = 'getMenuList';
+
     public function index()
     {
         $input = $this->get;
@@ -53,7 +55,11 @@ class Menu extends Auth
      */
     public function getMenuList()
     {
-        $menu = $this->Model->getRouter();
+        $userMenus = $this->getUserMenus();
+        if (!is_null($userMenus) && empty($userMenus)) {
+            return $this->error(Code::CODE_FORBIDDEN);
+        }
+        $menu = $this->Model->getRouter($userMenus);
         $this->success($menu);
     }
 }

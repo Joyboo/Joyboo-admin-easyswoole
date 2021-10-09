@@ -8,6 +8,10 @@ use App\Common\Http\Code;
 
 class Package extends Auth
 {
+    protected $_uckAction = 'gkey';
+
+    protected $_ckAction = ['saveAdjustEvent' => 'edit'];
+
     protected function _search()
     {
         if (isset($this->get['gameid']))

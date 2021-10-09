@@ -12,6 +12,8 @@ use App\Common\Http\Code;
  */
 class Game extends Auth
 {
+    protected $_uckAction = 'gkey';
+
     protected function _search()
     {
         $where = [];

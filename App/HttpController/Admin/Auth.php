@@ -27,6 +27,30 @@ abstract class Auth extends Base
 
     protected $uploadKey = 'file';
 
+    /**
+     * 别名认证的操作
+     * @var array
+     */
+    protected $_ckAliasAction = ['change' => 'edit', 'export' => 'index'];
+
+    /**
+     * 每个继承类可在此定义别名认证的操作
+     * @var array
+     */
+    protected $_ckAction = [];
+
+    /**
+     * 无需认证的操作
+     * 	@var string
+     */
+    protected $_uckSysAction = 'upload';
+
+    /**
+     * 每个继承类可在此定义无需认证的操作，格式为 操作1,操作2,....
+     * @var string
+     */
+    protected $_uckAction = '';
+
     protected function onRequest(?string $action): bool
     {
         parent::onRequest($action);
@@ -78,15 +102,80 @@ abstract class Auth extends Base
         $this->operinfo['role'] = $relation;
 //        var_dump($this->operinfo);
 
-        // 权限验证
-        $this->checkAuth();
-
-        return true;
+        return $this->checkAuth();
     }
 
     protected function checkAuth()
     {
-        // todo 权限验证
+        if ($this->isSuper())
+        {
+            return true;
+        }
+        // /admin/admin/index
+        $fullpath = $this->request()->getUri()->getPath();
+
+        $this->_uckSysAction = trim($this->_uckSysAction, ',');
+        $this->_uckSysAction = ',' . $this->_uckSysAction . ($this->_uckAction ? ",{$this->_uckAction}" : '' ) . ',';
+
+        // 无需认证的操作
+        $arr = explode('/', $fullpath);
+        $method = end($arr);
+        if(stripos($this->_uckSysAction, ",$method,") !== false)
+        {
+            return true;
+        }
+
+        /** @var \App\Model\Menu $Menu */
+        $Menu = model('Menu');
+        $priv = $Menu->where("permission<>'' and status=1")->field(['permission', 'id'])->indexBy('permission');
+
+        // 无独立的权限菜单，但有别名认证的操作
+        $path = substr($fullpath, strpos($fullpath, '/', 1));
+        $arr = explode('\\', static::class);
+        $className = strtolower(end($arr));
+
+        $this->_uckAction = trim($this->_uckAction, ',');
+        $this->_ckAliasAction = array_change_key_case(array_merge($this->_ckAliasAction, $this->_ckAction));
+
+        // /index  index  /admin/index  admin/index 补全为统一格式: /admin/index
+        $func = function ($val) use ($className) {
+            $k = trim($val, '/');
+            $count = substr_count($k, '/');
+
+            // /index  index
+            if ($count === 0)
+            {
+                return '/' . $className . '/' . $k;
+            }
+            // /admin/index  admin/index
+            elseif ($count === 1)
+            {
+                return '/' . $k;
+            }
+            else {
+                throw new \OAuthException('Error Auth _ckAliasAction: ' . $val);
+            }
+        };
+
+        $alias = [];
+        foreach ($this->_ckAliasAction as $key => $value)
+        {
+            $alias[$func($key)] = $func($value);
+        }
+
+        if (empty($priv[$path]) && array_key_exists($path, array_change_key_case($alias)))
+        {
+            $path = strtolower($alias[$path]);
+        }
+
+        if (empty($priv[$path]['id']))
+        {
+            $this->error(Code::CODE_FORBIDDEN);
+            return false;
+        }
+
+
+        return ! empty($priv[$path]) && in_array($priv[$path]['id'], $this->getUserMenus());
     }
 
     protected function isSuper($rid = null)
@@ -98,7 +187,15 @@ abstract class Auth extends Base
         return in_array($rid, $super);
     }
 
-    // todo 以下方法需要权限限制
+    protected function getUserMenus()
+    {
+        if ($this->isSuper())
+        {
+            return null;
+        }
+        $userMenu = explode(',', $this->operinfo['role']['menu'] ?? '');
+        return is_array($userMenu) ? $userMenu : [];
+    }
 
     public function add()
     {

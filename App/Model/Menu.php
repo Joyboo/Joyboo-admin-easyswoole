@@ -24,76 +24,28 @@ class Menu extends Base
         return ucfirst(ltrim($data, '/'));
     }
 
-    public function getRouter($where = [])
+    public function getRouter($userMenus = [])
     {
-        $treeData = $this->menuList($where);
-        $router = $this->makeRouter($treeData);
+        $tree = new Tree($userMenus);
+        $where = [
+            'type' => [[0, 1], 'in'],
+            'status' => 1
+        ];
+        $router = $tree->originData($where)->getTree(0, true);
         return $router;
     }
 
     public function menuList($where = [])
     {
-        // todo 加where 权限
-        $data = $this->where([
-            'status' => 1,
-            'type' => [[0, 1], 'in']
-        ])->order(...$this->sort)->indexBy('id');
-
-        $Tree = new Tree($data);
-        return  $Tree->getTree();
+        $Tree = new Tree();
+        $where['status'] = 1;
+        return  $Tree->originData($where)->getTree();
     }
 
     public function menuAll($where = [])
     {
-        if ($where) {
-            $this->where($where);
-        }
-        $all = $this->where('status', 1)->order(...$this->sort)->all();
-
-        $Tree = new Tree($all);
-
-        return $Tree->getAll();
-    }
-
-    /**
-     * 将数据转化为客户端Router结构
-     */
-    protected function makeRouter($data)
-    {
-        $result = [];
-        foreach ($data as $value)
-        {
-            $router = [];
-            foreach (['path', 'component', 'name', 'redirect', ] as $col)
-            {
-                $router[$col] = $value[$col] ?? '';
-            }
-
-            // meta,强类型,对应types/vue-router.d.ts
-            $meta = [
-                'orderNo' => intval($value['sort']),
-                'title' => $value['title'],
-                'ignoreAuth' => $value['ignore_auth'] == 1,
-                'ignoreKeepAlive' => $value['keepalive'] != 1,
-                'affix' => $value['affix'] == 1,
-                'icon' => $value['icon'],
-                'hideMenu' => $value['isshow'] != 1,
-                'hideBreadcrumb' => $value['breadcrumb'] != 1
-            ];
-            // path以http开头，则认为外部链接, isext=1为外链，=0为frameSrc
-            if (substr($value['path'], 0, 4) === 'http' && $value['isext'] != 1)
-            {
-                $meta['frameSrc'] = $value['path'];
-            }
-            $router['meta'] = $meta;
-
-            if (!empty($value['children']))
-            {
-                $router['children'] = $this->makeRouter($value['children']);
-            }
-            $result[] = $router;
-        }
-        return $result;
+        $Tree = new Tree();
+        return $Tree->originData($where)->getAll();
     }
 
     /**

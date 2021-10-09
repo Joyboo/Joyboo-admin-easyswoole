@@ -14,6 +14,8 @@ use Linkunyuan\EsUtility\Classes\LamJwt;
  */
 class Admin extends Auth
 {
+    protected $_uckAction = 'getUserInfo,getPermCode';
+
     protected function _search()
     {
         $where = [];
@@ -33,11 +35,14 @@ class Admin extends Auth
 
     protected function _afterIndex($items)
     {
-        $items = parent::_afterIndex($items);
-
         /** @var \App\Model\Role $Role */
         $Role = model('Role');
         $roleList = $Role->getRoleListAll();
+        foreach ($items as &$value)
+        {
+            unset($value['password']);
+            $value->relation;
+        }
         return ['items' => $items, 'roleList' => $roleList];
     }
 
@@ -60,6 +65,8 @@ class Admin extends Auth
             $avatar = $config['imageDomain'] . $avatar;
         }
 
+        $super = $this->isSuper();
+
         $result = [
             'id' => $this->operinfo['id'],
             'username' => $this->operinfo['username'],
@@ -75,7 +82,6 @@ class Admin extends Auth
             ]
         ];
 
-        $super = $this->isSuper();
         // 游戏和包
         /** @var \App\Model\Game $Game */
         $Game = model('Game');
@@ -83,11 +89,13 @@ class Admin extends Auth
         $Package = model('Package');
         if (! $super)
         {
-            $gameids = explode(',', $this->operinfo['extension']['gameids'] ?? '');
+            $gameids = $this->operinfo['extension']['gameids'] ?? [];
+            is_string($gameids) && $gameids = explode(',', $gameids);
             $Game->where(['id' => [$gameids, 'in']]);
 
-            $pkg = explode(',', $this->operinfo['extension']['pkgbnd'] ?? '');
-            $Package->where(['pkgbnd' => [$pkg, 'in']]);
+            $pkgbnd = $this->operinfo['extension']['pkgbnd'] ?? [];
+            is_string($pkgbnd) && $pkgbnd = explode(',', $pkgbnd);
+            $Package->where(['pkgbnd' => [$pkgbnd, 'in']]);
         }
         $result['gameList'] = $Game->where('status', 1)->order(...$Game->sort)->field(['id', 'name'])->all();
         $result['pkgList'] = $Package->field(['gameid', 'pkgbnd', 'name', 'id'])->order(...$Game->sort)->all();
@@ -126,30 +134,14 @@ class Admin extends Auth
 
     protected function _views()
     {
+//        \Swoole\Coroutine::sleep(3);
         $result = [];
         // 角色组，菜单
         /** @var \App\Model\Role $Role */
         $Role = model('Role');
         /** @var \App\Model\Menu $Menu */
         $Menu = model('Menu');
-        /** @var \App\Model\Game $Game */
-        $Game = model('Game');
-        /** @var \App\Model\Package $Package */
-        $Package = model('Package');
         $roleAll = $Role->getRoleListAll();
-        $gameAll = $Game->getGameAll();
-        $packageAll = $Package->getPackageAll();
-        $gameItem = [];
-        foreach ($gameAll as $value)
-        {
-            $gameItem[] = [
-                'value' => $value['id'],
-                'label' => $value['name'] . '(id: ' . $value['id'] . ')',
-                'package' => array_filter(function ($val) use ($value) {
-                    return $value['id'] != $val['gameid'];
-                }, $packageAll),
-            ];
-        }
 
         $roleList = $checkByRid = [];
         foreach ($roleAll as $value)
@@ -177,7 +169,6 @@ class Admin extends Auth
         $result['roleAuth'] = $Menu->menuAll();
         // 每个角色组有哪些权限
         $result['checkByRid'] = $checkByRid;
-        $result['gameItem'] = $gameItem;
         return $result;
     }
 
@@ -187,6 +178,53 @@ class Admin extends Auth
         if (empty($this->post['password'])) {
             unset($this->post['password']);
         }
+    }
+
+    protected function editPost()
+    {
+        if (!$this->isSuper())
+        {
+            $id = $this->post['id'];
+            if (empty($id)) {
+                $this->error(Code::ERROR, Dictionary::ADMIN_7);
+            }
+            $origin = $this->Model->where('id', $id)->val('extension');
+
+            /**
+             * 和数据库对比，如果原来已分配的包，当前操作用户没有这个包的权限，要追加进post
+             * @param $current 当前操作用户的gameids或pkgbnd
+             * @param $org 数据库原值，gameid或pkgbnd
+             * @param $post $this->post[xxx]
+             */
+            $diffAuth = function ($current, $org, $post) {
+                is_string($current) && $current = explode(',', $current);
+                is_string($org) && $org = explode(',', $org);
+                is_string($post) && $post = explode(',', $post);
+
+                $result = [];
+                foreach ($org as $value)
+                {
+                    if (!in_array($value, $current)) { $result[] = $value; }
+                }
+
+                return array_unique(array_merge($post, $result));
+            };
+
+            // 包权限
+            $this->post['extension']['pkgbnd'] = $diffAuth(
+                $this->operinfo['extension']['pkgbnd'],
+                $origin['pkgbnd'],
+                $this->post['extension']['pkgbnd']
+            );
+            // 游戏权限
+            $this->post['extension']['gameids'] = $diffAuth(
+                $this->operinfo['extension']['gameids'],
+                $origin['gameids'],
+                $this->post['extension']['gameids']
+            );
+        }
+
+        parent::editPost();
     }
 
     public function getToken()
