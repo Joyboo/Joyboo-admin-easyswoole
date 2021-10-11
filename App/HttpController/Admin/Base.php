@@ -140,4 +140,21 @@ abstract class Base extends Controller
     {
         return strtoupper($this->request()->getMethod()) === strtoupper($method);
     }
+
+    /**
+     * [1 => 'a', 2 => 'b', 4 => 'c']
+     * 这种数组传给前端会被识别为object
+     * 强转为typescript数组
+     * @param array $array
+     * @return array
+     */
+    protected function toArray($array = [])
+    {
+        $result = [];
+        foreach ($array as $value)
+        {
+            $result[] = $value;
+        }
+        return $result;
+    }
 }

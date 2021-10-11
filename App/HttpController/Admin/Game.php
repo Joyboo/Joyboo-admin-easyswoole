@@ -43,4 +43,19 @@ class Game extends Auth
 
         $this->success($sign);
     }
+
+    public function give()
+    {
+        /** @var \App\Model\Admin $Admin */
+        $Admin = model('Admin');
+
+        if ($this->isMethod('get'))
+        {
+            $this->success($Admin->getGive($this->get['gameid']));
+        }
+        elseif ($this->isMethod('post'))
+        {
+            var_dump($this->post);
+        }
+    }
 }

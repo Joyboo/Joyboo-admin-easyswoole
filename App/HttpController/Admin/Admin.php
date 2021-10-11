@@ -247,4 +247,36 @@ class Admin extends Auth
         $token = LamJwt::getToken(['id' => $id], config('auth.jwtkey'), 3600);
         $this->success($token);
     }
+
+    public function modify()
+    {
+        $userInfo = $this->operinfo;
+
+        if ($this->isMethod('get'))
+        {
+            // role的关联数据也可以不用理会，ORM会处理
+            unset($userInfo['password'], $userInfo['role']);
+            // 默认首页treeSelect
+            /** @var \App\Model\Menu $Menu */
+            $Menu = model('Menu');
+            $menuList = $Menu->menuList();
+            $this->success(['menuList' => $menuList, 'result' => $userInfo]);
+        }
+        elseif ($this->isMethod('post'))
+        {
+            $id = $this->post['id'];
+            if (empty($id) || $userInfo['id'] != $id)
+            {
+                // 仅允许管理员编辑自己的信息
+                return $this->error(Code::ERROR, Dictionary::ERROR);
+            }
+
+            if ($this->post['__password'] && ! password_verify($this->post['__password'], $userInfo['password']))
+            {
+                return $this->error(Code::ERROR, '对不起，旧密码不正确');
+            }
+
+            parent::editPost();
+        }
+    }
 }

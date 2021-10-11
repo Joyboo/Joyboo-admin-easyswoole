@@ -183,8 +183,7 @@ abstract class Auth extends Base
         if (is_null($rid)) {
             $rid = $this->operinfo['rid'];
         }
-        $super = config('SUPER_ROLE');
-        return in_array($rid, $super);
+        return isSuper($rid);
     }
 
     protected function getUserMenus()
@@ -439,16 +438,7 @@ abstract class Auth extends Base
      */
     protected function _afterIndex($items)
     {
-        $result = [];
-        foreach ($items as $key => $value)
-        {
-            if ($value instanceof \EasySwoole\ORM\AbstractModel)
-            {
-                $value = $value->toArray();
-            }
-            $result[$key] = $this->getTemplate($value);
-        }
-        return $result;
+        return $items;
     }
 
     protected function _afterEditGet($data)
@@ -459,81 +449,5 @@ abstract class Auth extends Base
     protected function _writeBefore()
     {
 
-    }
-
-    /**
-     * 将客户端提交的post合并到origin, 允许新增，少了的字段保持原值
-     * @return array
-     */
-    /*protected function getSave($post = [], $origin = [], $split = '.')
-    {
-        foreach ($post as $key => $value)
-        {
-            $deep = $this->mergeToSave($key, $value, $split);
-            $origin = array_merge_multi($origin, $deep);
-        }
-        return $origin;
-    }*/
-
-    /**
-     * 将数据库的结构拍平发送给客户端，即origin格式转化为post格式
-     */
-    protected function getTemplate($origin = [], $split = '.')
-    {
-        if (empty($origin))
-        {
-            return [];
-        }
-        $template = [];
-        foreach ($origin as $key => $value)
-        {
-            $this->toPostStruct($template, $key, $value, $split);
-        }
-
-        return $template;
-    }
-
-    private function mergeToSave($key, $value = '', $split = '.')
-    {
-        if (strpos($key, $split) === false)
-        {
-            return [$key => $value];
-        }
-
-        $result = [];
-        list ($first, $last) = explode($split, $key, 2);
-
-        if (strpos($last, $split) !== false)
-        {
-            $result[$first] = $this->mergeToSave($last, $value);
-        }
-        else
-        {
-            return [$first => [ $last => $value]];
-        }
-        return $result;
-    }
-
-    /**
-     * 将数据库extension结构转换为post类型
-     * 找到每一个叶子节点
-     */
-    private function toPostStruct(& $sign, $key, $value, $split = '.')
-    {
-        if (is_array($value))
-        {
-            foreach ($value as $lk => $lv)
-            {
-                $fullKey = $key . $split . $lk;
-                if (is_array($lv))
-                {
-                    $this->toPostStruct($sign, $fullKey, $lv, $split);
-                } else {
-                    $sign[$fullKey] = $lv;
-                }
-            }
-        } else {
-            $sign[$key] = $value;
-        }
     }
 }

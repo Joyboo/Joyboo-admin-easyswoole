@@ -39,6 +39,7 @@ class Menu extends Base
     {
         $Tree = new Tree();
         $where['status'] = 1;
+        $where['type'] = [[0, 1], 'in'];
         return  $Tree->originData($where)->getTree();
     }
 
