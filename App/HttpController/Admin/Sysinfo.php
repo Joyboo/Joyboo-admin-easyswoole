@@ -15,6 +15,23 @@ use App\Common\Languages\Dictionary;
  */
 class Sysinfo extends Auth
 {
+    protected function _search()
+    {
+        $where = [];
+        if (isset($this->get['status']) && $this->get['status'] !== '')
+        {
+            $where['status'] = $this->get['status'];
+        }
+        foreach (['varname', 'remark'] as $col)
+        {
+            if (!empty($this->get[$col]))
+            {
+                $where[$col] = ["%{$this->get[$col]}%", 'like'];
+            }
+        }
+        return $where;
+    }
+
     protected function _writeBefore()
     {
         $post = $this->post;

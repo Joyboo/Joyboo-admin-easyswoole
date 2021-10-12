@@ -11,7 +11,7 @@ abstract class Base extends AbstractModel
 
     protected $tableName = '';
 
-    public $sort = ['id', 'asc'];
+    public $sort = ['id', 'desc'];
 
     public function __construct($data = [], $tabname = '', $gameid = '')
     {

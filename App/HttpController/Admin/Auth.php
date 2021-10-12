@@ -319,13 +319,15 @@ abstract class Auth extends Base
     public function change()
     {
         $post = $this->post;
-        foreach (['id', 'column', 'status'] as $col)
+        foreach (['id', 'column'] as $col)
         {
-            if (!isset($post[$col]))
+            if (!isset($post[$col]) || !isset($post[$post['column']]))
             {
                 return $this->error(Code::ERROR_5, Dictionary::ADMIN_7);
             }
         }
+
+        $column = $post['column'];
 
         $pk = $this->Model->getPk();
         if (!isset($post[$pk]))
@@ -339,7 +341,7 @@ abstract class Auth extends Base
             return $this->error(Code::ERROR, Dictionary::ADMIN_7);
         }
 
-        $model->update([$post['column'] => $post['status']]);
+        $model->update([$post['column'] => $post[$column]]);
         $rowCount = $model->lastQueryResult()->getAffectedRows();
         $rowCount ? $this->success() : $this->error(Code::ERROR);
     }
@@ -356,6 +358,8 @@ abstract class Auth extends Base
 //            $sortValue = substr($sortValue, 0, -3);
             $sortValue = str_replace('end', '', $sortValue);
             $this->Model->order($sortField, $sortValue);
+        } else {
+            $this->Model->order(...$this->Model->sort);
         }
 
         if ($where = $this->_search())
@@ -366,7 +370,7 @@ abstract class Auth extends Base
         $this->Model->scopeIndex();
 
         $model = $this->Model->limit($limit * ($page - 1), $limit)->withTotalCount();
-        $items = $model->all($where);
+        $items = $model->all();
 
         $result = $model->lastQueryResult();
         $total = $result->getTotalCount();
