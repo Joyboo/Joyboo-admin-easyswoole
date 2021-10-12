@@ -3,6 +3,7 @@
 
 namespace App\HttpController\Admin;
 
+use App\Common\Exception\HttpParamException;
 use App\Common\Http\Code;
 use App\Common\Languages\Dictionary;
 use App\Model\Admin;
@@ -220,6 +221,10 @@ abstract class Auth extends Base
         catch (\ReflectionException $e)
         {
             $this->error(Code::ERROR, Dictionary::ADMIN_7);
+        }
+        catch (HttpParamException $e)
+        {
+            $this->error(Code::ERROR, $e->getMessage());
         }
     }
 
