@@ -52,6 +52,9 @@ class Admin extends Auth
 
         // 图片上传路径
         $config = ['imageDomain' => $upload['domain']];
+        /** @var \App\Model\Sysinfo $SysInfo */
+        $SysInfo = model('Sysinfo');
+        $config['sysinfo'] = $SysInfo->getSysinfo();
 
         // 客户端进入页,应存id
         if (!empty($this->operinfo['extension']['homePage']))

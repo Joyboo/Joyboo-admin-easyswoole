@@ -128,6 +128,8 @@ class Tree
             if (substr($value['path'], 0, 4) === 'http' && $value['isext'] != 1)
             {
                 $meta['frameSrc'] = $value['path'];
+                // 当为内嵌时，path已经不需要了，但优先级比frameSrc高，需要覆盖掉path为非url
+                $router['path'] = $router['name'] ?? '';
             }
             $router['meta'] = $meta;
 
