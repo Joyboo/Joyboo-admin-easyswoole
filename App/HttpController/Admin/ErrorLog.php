@@ -8,8 +8,22 @@ namespace App\HttpController\Admin;
  * @property \App\Model\ErrorLog $Model
  * @package App\HttpController\Admin
  */
-class ErrorLog extends Base
+class ErrorLog extends Auth
 {
+    protected $_uckAction = 'multiple';
+
+    protected function _search()
+    {
+        $filter = $this->filter();
+
+        $where = ['time' => [[$filter['begintime'], $filter['endtime']], 'between']];
+        if (!empty($this->get['type']))
+        {
+            $where['type'] = $this->get['type'];
+        }
+        return $where;
+    }
+
     public function multiple()
     {
         // 客户端是批量发送，成功后清空report, 为啥不调saveAll，避免因为单条失败，导致该用户error report永远失败

@@ -6,14 +6,14 @@ namespace App\Model;
 
 use EasySwoole\Mysqli\QueryBuilder;
 
-class AdminLog extends Base
+class Log extends Base
 {
     /** @var bool|string 是否开启时间戳 */
     protected  $autoTimeStamp = true;
     /** @var bool|string 创建时间字段名 false不设置 */
     protected  $createTime = 'instime';
     /** @var bool|string 更新时间字段名 false不设置 */
-    protected  $updateTime = 'updtime';
+    protected  $updateTime = false;
 
     protected function getIpAttr($ip = [], $data = [])
     {
@@ -31,6 +31,6 @@ class AdminLog extends Base
             $query->fields(['id', 'username', 'realname', 'avatar', 'status']);
             return $query;
         };
-        return $this->hasOne(Admin::class, $callback, 'uid', 'id');
+        return $this->hasOne(Admin::class, $callback, 'admid', 'id');
     }
 }

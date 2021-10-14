@@ -441,6 +441,35 @@ abstract class Auth extends Base
     }
 
     /**
+     * 公共参数,配合where使用
+     * @return array
+     */
+    protected function filter()
+    {
+        $filter = [];
+
+        $begintime = $this->get['begintime'] ?? '';
+        if ($begintime || is_numeric($begintime))
+        {
+            $begintime = is_numeric($begintime) ? date('Y-m-d', $begintime <= 0 ? strtotime("$begintime days") : $begintime) : $begintime;
+            $begintime = strtotime($begintime . (strpos($begintime, ':') ? '' : ' 00:00:00'));
+            $filter['begintime'] = $begintime;
+        }
+
+        if(isset($this->get['endtime']))
+        {
+            $endtime = $this->get['endtime'];
+            $endtime = is_numeric($endtime) ? date('Y-m-d', $endtime < 0 ? strtotime("$endtime days") : $endtime) : $endtime;
+            $endtime = strtotime($endtime . (strpos($endtime, ':') ? '' : ' 23:59:59'));
+            $filter['endtime'] = $endtime;
+        }
+
+        // ... 还有很多
+
+        return $filter;
+    }
+
+    /**
      * 列表后置操作
      * @param $items
      * @return mixed

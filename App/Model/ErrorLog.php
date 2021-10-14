@@ -20,4 +20,9 @@ class ErrorLog extends Base
         }
         return $value;
     }
+
+    protected function getTimeAttr($value, $alldata)
+    {
+        return is_numeric($value) ? date('Y-m-d H:i:s', $value) : $value;
+    }
 }
