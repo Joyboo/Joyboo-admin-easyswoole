@@ -18,7 +18,7 @@ class Admin extends Base
     /** @var bool|string 更新时间字段名 false不设置 */
     protected  $updateTime = false;
 
-    public $sort = ['sort', 'asc'];
+    public $sort = ['sort' => 'asc', 'id' => 'desc'];
 
     protected function setPasswordAttr($password = '', $alldata = [])
     {
@@ -96,7 +96,7 @@ class Admin extends Base
     public function getGive($parid = '', $parkey = 'gameids')
     {
         // 所有管理员
-        $admin = $this->order(...$this->sort)->field('id,rid,username,realname,status,extension')->all();
+        $admin = $this->setOrder()->field('id,rid,username,realname,status,extension')->all();
         // 由于数据库存在id为0的游戏，不能使用find_in_set
         $authId = [];
         if ($parid != '')

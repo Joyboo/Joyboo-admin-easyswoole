@@ -11,7 +11,7 @@ abstract class Base extends AbstractModel
 
     protected $tableName = '';
 
-    public $sort = ['id', 'desc'];
+    public $sort = ['id' => 'desc'];
 
     public function __construct($data = [], $tabname = '', $gameid = '')
     {
@@ -67,6 +67,35 @@ abstract class Base extends AbstractModel
 
     public function scopeIndex()
     {
+        return $this;
+    }
+
+    public function setOrder(array $order = [])
+    {
+        $sort = $this->sort;
+        // 'id desc'
+        if (is_string($sort))
+        {
+            list($sortField, $sortValue) = explode(' ', $sort);
+            $order[$sortField] = $sortValue;
+        }
+        // ['sort' => 'desc'] || ['sort' => 'desc', 'id' => 'asc']
+        else if (is_array($sort))
+        {
+            // 保证传值的最高优先级
+            foreach ($sort as $k => $v)
+            {
+                if (!isset($order[$k]))
+                {
+                    $order[$k] = $v;
+                }
+            }
+        }
+
+        foreach ($order as $key => $value)
+        {
+            $this->order($key, $value);
+        }
         return $this;
     }
 }

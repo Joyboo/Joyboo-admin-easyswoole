@@ -13,7 +13,7 @@ class Role extends Base
     /** @var bool|string 更新时间字段名 false不设置 */
     protected  $updateTime = false;
 
-    public $sort = ['sort', 'asc'];
+    public $sort = ['sort' => 'asc', 'id' => 'desc'];
 
     protected function setMenuAttr($data, $alldata)
     {
@@ -42,6 +42,6 @@ class Role extends Base
     public function getRoleListAll()
     {
         // 如果id不连续，indexBy返回给客户端就是一个json
-        return $this->where('status', 1)->order(...$this->sort)->field(['id', 'name', 'menu'])->all('id');
+        return $this->where('status', 1)->setOrder()->field(['id', 'name', 'menu'])->all('id');
     }
 }

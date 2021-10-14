@@ -7,7 +7,7 @@ use App\Common\Classes\Tree;
 
 class Menu extends Base
 {
-    public $sort = ['sort', 'asc'];
+    public $sort = ['sort' => 'asc', 'id' => 'desc'];
 
     protected function setRedirectAttr($data, $alldata)
     {

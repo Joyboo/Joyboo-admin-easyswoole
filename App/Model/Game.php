@@ -13,7 +13,7 @@ class Game extends Base
     /** @var bool|string 更新时间字段名 false不设置 */
     protected  $updateTime = false;
 
-    public $sort = ['sort', 'asc'];
+    public $sort = ['sort' => 'asc', 'id' => 'desc'];
 
     public function getLogkey($logkey = '')
     {
@@ -50,6 +50,6 @@ class Game extends Base
         if ($where) {
             $this->where($where);
         }
-        return $this->where('status', 1)->order(...$this->sort)->all('id');
+        return $this->where('status', 1)->setOrder()->all('id');
     }
 }

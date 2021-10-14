@@ -40,7 +40,7 @@ class Tree
         if ($where) {
             $Menu->where($where);
         }
-        $this->menu = $Menu->order(...$Menu->sort)->all();
+        $this->menu = $Menu->setOrder()->all();
         return $this;
     }
 

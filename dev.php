@@ -41,7 +41,16 @@ return [
             'database'      => 'vben_admin',
             'timeout'       => 3,
             'charset'       => 'utf8mb4',
-        ]
+        ],
+        'sdk' => [
+            'host'          => '',
+            'port'          => 3305,
+            'user'          => '',
+            'password'      => '',
+            'database'      => '',
+            'timeout'       => 3,
+            'charset'       => 'utf8mb4',
+        ],
     ],
     'REDIS' => [
         'default' => [

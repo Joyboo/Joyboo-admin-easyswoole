@@ -350,22 +350,14 @@ abstract class Auth extends Base
     {
         $page = $this->get['page'] ?? 1;          // 当前页码
         $limit = $this->get['pageSize'] ?? 20;    // 每页多少条数据
-        $sortField = $this->get['_sortField'] ?? ''; // 排序字段
-        $sortValue = $this->get['_sortValue'] ?? ''; // 'ascend' | 'descend'
-
-        if ($sortField && $sortValue) {
-            // 去掉前端的end后缀
-//            $sortValue = substr($sortValue, 0, -3);
-            $sortValue = str_replace('end', '', $sortValue);
-            $this->Model->order($sortField, $sortValue);
-        } else {
-            $this->Model->order(...$this->Model->sort);
-        }
 
         if ($where = $this->_search())
         {
             $this->Model->where($where);
         }
+
+        // 处理排序
+        $this->_order();
 
         $this->Model->scopeIndex();
 
@@ -378,6 +370,23 @@ abstract class Auth extends Base
         // 后置操作
         $items = $this->_afterIndex($items);
         $this->success(['items' => $items, 'total' => $total]);
+    }
+
+    protected function _order()
+    {
+        $sortField = $this->get['_sortField'] ?? ''; // 排序字段
+        $sortValue = $this->get['_sortValue'] ?? ''; // 'ascend' | 'descend'
+
+        $order = [];
+        if ($sortField && $sortValue) {
+            // 去掉前端的end后缀
+//            $sortValue = substr($sortValue, 0, -3);
+            $sortValue = str_replace('end', '', $sortValue);
+            $order[$sortField] = $sortValue;
+        }
+
+        $this->Model->setOrder($order);
+        return $order;
     }
 
     public function upload()
