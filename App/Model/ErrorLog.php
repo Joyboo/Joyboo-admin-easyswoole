@@ -25,4 +25,9 @@ class ErrorLog extends Base
     {
         return is_numeric($value) ? date('Y-m-d H:i:s', $value) : $value;
     }
+
+    public function onQueryEvent($res = null, $builder = null, $start = 0)
+    {
+
+    }
 }

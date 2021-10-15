@@ -4,6 +4,8 @@
 namespace App\Model;
 
 use EasySwoole\ORM\AbstractModel;
+use EasySwoole\ORM\Db\Result;
+use EasySwoole\Mysqli\QueryBuilder;
 
 abstract class Base extends AbstractModel
 {
@@ -22,7 +24,47 @@ abstract class Base extends AbstractModel
 
         $tabname != '' &&  $this->tableName($tabname);
         $this->gameid = $gameid;
+
         parent::__construct($data);
+    }
+
+    /**
+     * 注册模型回调, 需要记录SQL的操作请调用此方法, 示例: model->where()->regOnQuery()->save()
+     * @throws \ReflectionException
+     */
+    public function regOnQuery()
+    {
+        // 将可重写的类方法变为callable
+        $reflection = new \ReflectionClass(static::class);
+        $closure = $reflection->getMethod('onQueryEvent')->getClosure($this);
+        $this->onQuery($closure);
+        return $this;
+    }
+
+    // onQuery模型回调，子类可重写此方法
+    protected function onQueryEvent($res = null,$builder = null, $start = 0)
+    {
+        if ($res instanceof Result && $builder instanceof QueryBuilder)
+        {
+            $sql = $builder->getLastQuery();
+            if (empty($sql))
+            {
+                return;
+            }
+            // 不记录的SQL
+            $not = config('NOT_WRITE_SQL');
+            foreach ($not as $pattern)
+            {
+                if (preg_match($pattern, $sql))
+                {
+                    return;
+                }
+            }
+
+            /** @var Log $Log */
+            $Log = model('Log');
+            $Log->sqlWriteLog($builder->getLastQuery(), $res->toArray());
+        }
     }
 
     /**

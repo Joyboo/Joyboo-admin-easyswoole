@@ -22,10 +22,8 @@ class Pub extends Base
         /** @var Admin $Admin */
         $Admin = model('Admin');
 
-        $request = $this->request();
-
         try {
-            $result = $Admin->login($this->post, $request);
+            $result = $Admin->login($this->post);
         }
         catch (HttpParamException $e)
         {

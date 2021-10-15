@@ -89,7 +89,7 @@ class Tree
                 }
 
                 // 儿子在id列表爸爸不在，把爸爸也算上, 适用于 treeSelect 当子节点未选满时不会返回父节点的场景
-                if (is_null($this->ids) || (in_array($value['id'], $this->ids) || $children))
+                if (is_null($this->ids) || (is_array($this->ids) && in_array($value['id'], $this->ids) || $children))
                 {
                     $result[] = $value;
                 }

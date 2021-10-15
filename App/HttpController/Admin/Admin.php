@@ -100,8 +100,9 @@ class Admin extends Auth
             is_string($pkgbnd) && $pkgbnd = explode(',', $pkgbnd);
             $Package->where(['pkgbnd' => [$pkgbnd, 'in']]);
         }
-        $result['gameList'] = $Game->where('status', 1)->order(...$Game->sort)->field(['id', 'name'])->all();
-        $result['pkgList'] = $Package->field(['gameid', 'pkgbnd', 'name', 'id'])->order(...$Game->sort)->all();
+
+        $result['gameList'] = $Game->where('status', 1)->setOrder()->field(['id', 'name'])->all();
+        $result['pkgList'] = $Package->field(['gameid', 'pkgbnd', 'name', 'id'])->setOrder()->all();
 
         $result['config'] = $config;
 

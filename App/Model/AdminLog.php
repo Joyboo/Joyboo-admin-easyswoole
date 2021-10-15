@@ -17,7 +17,17 @@ class AdminLog extends Base
 
     protected function getIpAttr($ip = [], $data = [])
     {
-        return long2ip($ip);
+        return is_numeric($ip) ? long2ip($ip) : $ip;
+    }
+
+    protected function setIpAttr($ip, $data = [])
+    {
+        return is_numeric($ip) ? $ip : ip2long($ip);
+    }
+
+    protected function onQueryEvent($res = null, $builder = null, $start = 0)
+    {
+
     }
 
     /**

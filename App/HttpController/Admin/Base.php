@@ -27,8 +27,6 @@ abstract class Base extends Controller
 
     protected $post = [];
 
-    protected $server = [];
-
     protected function onRequest(?string $action): bool
     {
         $this->_initialize();
@@ -136,15 +134,6 @@ abstract class Base extends Controller
             $post = $this->json();
         }
         $this->post = $post ?: [];
-
-        $server = [];
-        foreach ($this->request()->getSwooleRequest()->header as $key => $value) {
-            $server['HTTP_' . strtoupper(str_replace('-', '_', $key))] = $value;
-        }
-        foreach ($this->request()->getSwooleRequest()->server as $key => $value) {
-            $server[strtoupper(str_replace('-', '_', $key))] = $value;
-        }
-        $this->server = $server;
     }
 
     protected function isMethod($method)

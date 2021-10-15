@@ -17,7 +17,12 @@ class Log extends Base
 
     protected function getIpAttr($ip = [], $data = [])
     {
-        return long2ip($ip);
+        return is_numeric($ip) ? long2ip($ip) : $ip;
+    }
+
+    protected function setIpAttr($ip, $data = [])
+    {
+        return is_numeric($ip) ? $ip : ip2long($ip);
     }
 
     /**
@@ -32,5 +37,24 @@ class Log extends Base
             return $query;
         };
         return $this->hasOne(Admin::class, $callback, 'admid', 'id');
+    }
+
+    // 啥也不需要做，否则死循环
+    protected function onQueryEvent($res = null, $builder = null, $start = 0)
+    {
+
+    }
+
+    public function sqlWriteLog($sql = '', $res = [])
+    {
+        $operinfo = $_SERVER[config('SERVER_EXTRA.operinfo')] ?? [];
+
+        $data = [
+            'admid' => $operinfo['id'] ?? 0,
+            'content' => $sql,
+            'ip' => ip()
+        ];
+
+        $this->data($data)->save();
     }
 }

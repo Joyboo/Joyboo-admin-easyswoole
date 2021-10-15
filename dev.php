@@ -27,7 +27,11 @@ return [
         'handler' => new \App\Common\Handler\Log(EASYSWOOLE_ROOT . '/Log'),
         'logConsole' => true,
         'displayConsole' => true,
-        'ignoreCategory' => []
+        'ignoreCategory' => [],
+        // 单独记录的日志级别 level
+        'apart_level' => ['error'],
+        // 单独记录的日志类型 category
+        'apart_category' => ['sql', 'worker', 'lowlevel'],
     ],
     'TEMP_DIR' => null,
 //    'TEMP_DIR' => '/tmp/Joyboo-admin-easyswoole',
@@ -70,6 +74,12 @@ return [
 
     // 超级管理员id
     'SUPER_ROLE' => [1],
+
+    'SERVER_EXTRA' => [
+        'operinfo' => 'auth_operinfo',
+    ],
+    // 不写日志的SQL，正则匹配
+    'NOT_WRITE_SQL' => ['/set\s+time_zone/i'],
 
     'UPLOAD' => [
         'dir' => EASYSWOOLE_ROOT . '/Public/',

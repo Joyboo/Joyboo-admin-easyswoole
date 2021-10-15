@@ -33,7 +33,7 @@ class Admin extends Base
      * 用户登录处理
      * @param array $array 用户提交的数据（需要至少包括username和password字段）
      */
-    public function login($array = [], Request $request)
+    public function login($array = [])
     {
         if (!isset($array['username']))
         {
@@ -59,7 +59,7 @@ class Admin extends Base
             $AdminLog->data([
                 'uid' => $data['id'],
                 'name' => $data['realname'] ?: $data['username'],
-                'ip' => ip2long(ip($request)),
+                'ip' => ip(),
             ])->save();
 
             // todo 将当前版本放进jwt，以此实现客户端版本校验
