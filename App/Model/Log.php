@@ -45,7 +45,7 @@ class Log extends Base
 
     }
 
-    public function sqlWriteLog($sql = '', $res = [])
+    public function sqlWriteLog($sql = '')
     {
         $operinfo = $_SERVER[config('SERVER_EXTRA.operinfo')] ?? [];
 

@@ -44,7 +44,7 @@ abstract class Base extends AbstractModel
     // onQuery模型回调，子类可重写此方法
     protected function onQueryEvent($res = null,$builder = null, $start = 0)
     {
-        if ($res instanceof Result && $builder instanceof QueryBuilder)
+        if ($builder instanceof QueryBuilder)
         {
             $sql = $builder->getLastQuery();
             if (empty($sql))
@@ -63,7 +63,7 @@ abstract class Base extends AbstractModel
 
             /** @var Log $Log */
             $Log = model('Log');
-            $Log->sqlWriteLog($builder->getLastQuery(), $res->toArray());
+            $Log->sqlWriteLog($builder->getLastQuery());
         }
     }
 

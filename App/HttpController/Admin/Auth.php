@@ -7,6 +7,8 @@ use App\Common\Exception\HttpParamException;
 use App\Common\Http\Code;
 use App\Common\Languages\Dictionary;
 use App\Model\Admin;
+use EasySwoole\ORM\Db\MysqliClient;
+use EasySwoole\ORM\DbManager;
 use Linkunyuan\EsUtility\Classes\LamJwt;
 use App\Common\Classes\Extension;
 use EasySwoole\Http\Exception\FileException;
@@ -102,6 +104,16 @@ abstract class Auth extends Base
         $this->operinfo = $data->toArray();
         $this->operinfo['role'] = $relation;
 
+        // 考虑移入Model获取器
+        foreach (['gameids', 'pkgbnd'] as $col)
+        {
+            $colValue = $this->operinfo['extension'][$col] ?? [];
+            if (!is_array($colValue)) {
+                $colValue = explode(',', $colValue);
+            }
+            $this->operinfo['extension'][$col] = $colValue;
+        }
+
         $_SERVER[config('SERVER_EXTRA.operinfo')] = $this->operinfo;
         return $this->checkAuth();
     }
@@ -177,6 +189,66 @@ abstract class Auth extends Base
 
 
         return ! empty($priv[$path]) && in_array($priv[$path]['id'], $this->getUserMenus());
+    }
+
+    /**
+     * @param string $timeZone Asia/Shanghai | America/Bogota
+     */
+    protected function setPhpTimeZone($timeZone)
+    {
+        if (!$timeZone) {
+            return;
+        }
+
+        $defaultIniZone = get_cfg_var('date.timezone');
+        $defaultSysZone = date_default_timezone_get();
+
+        date_default_timezone_set($timeZone);
+
+        \Swoole\Coroutine::defer(function () use ($defaultIniZone, $defaultSysZone) {
+            date_default_timezone_set($defaultIniZone ?: $defaultSysZone);
+        });
+    }
+
+    protected function setDbTimeZone(MysqliClient $client, $tzn)
+    {
+        $sql = "set time_zone = '$tzn';";
+        trace($sql, 'info', 'sql');
+        $client->rawQuery($sql);
+    }
+
+    protected function getDbTimeZone(MysqliClient $client, $debug = true)
+    {
+        $timeZone = $client->rawQuery("SHOW VARIABLES LIKE '%time_zone%'");
+        if ($debug) {
+            var_dump($timeZone);
+        }
+        return $timeZone;
+    }
+
+    /**
+     * 指定Model的MysqlClient
+     * @param bool $onQuery 是否需要onQuery回调
+     * @param string $timeZone 是否需要设置时区， 格式: +8:00 -5:00
+     * @param callable $callable 回调里使用$this->Model无论多少次 始终会使用设置的那个MysqlClient连接
+     * @throws \EasySwoole\ORM\Exception\Exception
+     * @throws \EasySwoole\Pool\Exception\PoolEmpty
+     * @throws \Throwable
+     */
+    protected function invoke(bool $onQuery,string $timeZone, callable $callable)
+    {
+        DbManager::getInstance()->invoke(function (MysqliClient $client) use ($onQuery, $timeZone, $callable) {
+            $this->Model = $this->Model::invoke($client);
+            if ($onQuery) {
+                $this->Model->regOnQuery();
+            }
+            if ($timeZone) {
+                $this->setDbTimeZone($client, $timeZone);
+            }
+            if (is_callable($callable)) {
+                $callable();
+            }
+        });
     }
 
     protected function isSuper($rid = null)
@@ -463,6 +535,7 @@ abstract class Auth extends Base
             $begintime = is_numeric($begintime) ? date('Y-m-d', $begintime <= 0 ? strtotime("$begintime days") : $begintime) : $begintime;
             $begintime = strtotime($begintime . (strpos($begintime, ':') ? '' : ' 00:00:00'));
             $filter['begintime'] = $begintime;
+            $filter['beginday'] = date('ymd', $begintime);
         }
 
         if(isset($this->get['endtime']))
@@ -471,6 +544,7 @@ abstract class Auth extends Base
             $endtime = is_numeric($endtime) ? date('Y-m-d', $endtime < 0 ? strtotime("$endtime days") : $endtime) : $endtime;
             $endtime = strtotime($endtime . (strpos($endtime, ':') ? '' : ' 23:59:59'));
             $filter['endtime'] = $endtime;
+            $filter['endday'] = date('ymd', $endtime);
         }
 
         // ... 还有很多
