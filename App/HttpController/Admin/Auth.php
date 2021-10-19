@@ -108,7 +108,7 @@ abstract class Auth extends Base
         foreach (['gameids', 'pkgbnd'] as $col)
         {
             $colValue = $this->operinfo['extension'][$col] ?? [];
-            if (!is_array($colValue)) {
+            if (is_string($colValue)) {
                 $colValue = explode(',', $colValue);
             }
             $this->operinfo['extension'][$col] = $colValue;
@@ -545,6 +545,30 @@ abstract class Auth extends Base
             $endtime = strtotime($endtime . (strpos($endtime, ':') ? '' : ' 23:59:59'));
             $filter['endtime'] = $endtime;
             $filter['endday'] = date('ymd', $endtime);
+        }
+
+        if (isset($this->get['tzn']))
+        {
+            $tzn = $this->get['tzn'];
+            foreach (config('sysinfo.region_domain.region') as $k => $v)
+            {
+                if ($v['tzn'] == $tzn)
+                {
+                    $this->setPhpTimeZone($v['tzs']);
+                    $filter['tznSql'] = ($tzn > 0 ? "+$tzn" : $tzn) . ':00';
+                }
+            }
+            $filter['tzn'] = $tzn;
+        }
+
+        if (isset($this->get['gameid']))
+        {
+            $gameid = $this->get['gameid'];
+            if (strpos($gameid, ',') !== false)
+            {
+                $gameid = explode(',', $gameid);
+            }
+            $filter['gameid'] = $gameid;
         }
 
         // ... 还有很多

@@ -5,6 +5,9 @@ namespace App\HttpController\Admin;
 
 use App\Common\Http\Code;
 use App\Common\Languages\Dictionary;
+use App\Model\Daily;
+use EasySwoole\ORM\Db\MysqliClient;
+use EasySwoole\ORM\DbManager;
 use Linkunyuan\EsUtility\Classes\LamJwt;
 
 /**
@@ -46,15 +49,58 @@ class Admin extends Auth
         return ['items' => $items, 'roleList' => $roleList];
     }
 
+    /**
+     * 分析页
+     */
+    public function dashboardAnalysis()
+    {
+        DbManager::getInstance()->invoke(function (MysqliClient $client) {
+            $filter = $this->filter();
+
+            $result = $chart = [];
+            /** @var Daily $Daily */
+            $Daily = model('Daily');
+            $Daily::invoke($client);
+
+            $result['revenue'] = [
+                // 今天
+                'today' => $Daily->revenue(1, $filter),
+                // 昨天
+                'yesterday' => $Daily->revenue(2, $filter),
+                // 本月
+                'month' => $Daily->revenue(3, $filter),
+                // 上月
+                'lastmonth' => $Daily->revenue(4, $filter)
+            ];
+
+
+            // 上周
+            $last = $Daily->lastWeek($filter);
+            // 本周
+            $week = $Daily->thisWeek($filter);
+
+            $result['chart'] = array_merge_multi($last, $week);
+
+            $this->success($result);
+        });
+    }
+
+    /**
+     * 工作台
+     */
+    public function dashboardWorkbench()
+    {
+
+    }
+
     public function getUserInfo()
     {
         $upload = config('UPLOAD');
 
         // 图片上传路径
         $config = ['imageDomain' => $upload['domain']];
-        /** @var \App\Model\Sysinfo $SysInfo */
-        $SysInfo = model('Sysinfo');
-        $config['sysinfo'] = $SysInfo->getSysinfo();
+
+        $config['sysinfo'] = config('sysinfo');
 
         // 客户端进入页,应存id
         if (!empty($this->operinfo['extension']['homePage']))

@@ -46,6 +46,15 @@ return [
             'timeout'       => 3,
             'charset'       => 'utf8mb4',
         ],
+        'log' => [
+            'host'          => '',
+            'port'          => 3305,
+            'user'          => 'root',
+            'password'      => '',
+            'database'      => '',
+            'timeout'       => 3,
+            'charset'       => 'utf8mb4',
+        ],
         'sdk' => [
             'host'          => '',
             'port'          => 3305,

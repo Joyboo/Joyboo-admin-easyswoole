@@ -39,19 +39,6 @@ class Sysinfo extends Auth
         {
             return $this->error(Code::ERROR);
         }
-
-        if ($post['type'] == $this->Model::TYPE_ARRAY)
-        {
-            try {
-                $value = $this->Model->toArraybyEval($post['value']);
-                if (!is_array($value)) {
-                    throw new \Exception();
-                }
-            } catch (\Exception | \Throwable $e)
-            {
-                throw new HttpParamException('检测到语法错误，请重新输入');
-            }
-        }
     }
 
     /*protected function _afterIndex($items)

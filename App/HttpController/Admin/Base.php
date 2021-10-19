@@ -29,6 +29,7 @@ abstract class Base extends Controller
 
     protected function onRequest(?string $action): bool
     {
+        config('sysinfo', model('Sysinfo')->getSysinfo());
         $this->_initialize();
         return true;
     }
