@@ -28,7 +28,7 @@ class ErrorLog
   `file` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '出错文件',
   `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `message` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-  `stack` text NOT NULL DEFAULT '',
+  `stack` text NOT NULL,
   `url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `time` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '时间戳',
   `itime` timestamp GENERATED ALWAYS AS (from_unixtime(`time`)) VIRTUAL NULL COMMENT 'instime的时间格式',

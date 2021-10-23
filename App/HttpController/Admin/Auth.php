@@ -166,7 +166,7 @@ abstract class Auth extends Base
                 return '/' . $k;
             }
             else {
-                throw new \OAuthException('Error Auth _ckAliasAction: ' . $val);
+                throw new \Exception('Error Auth _ckAliasAction: ' . $val);
             }
         };
 
@@ -187,27 +187,13 @@ abstract class Auth extends Base
             return false;
         }
 
-
-        return ! empty($priv[$path]) && in_array($priv[$path]['id'], $this->getUserMenus());
-    }
-
-    /**
-     * @param string $timeZone Asia/Shanghai | America/Bogota
-     */
-    protected function setPhpTimeZone($timeZone)
-    {
-        if (!$timeZone) {
-            return;
+        if (!in_array($priv[$path]['id'], $this->getUserMenus()))
+        {
+            $this->error(Code::CODE_FORBIDDEN);
+            return false;
         }
 
-        $defaultIniZone = get_cfg_var('date.timezone');
-        $defaultSysZone = date_default_timezone_get();
-
-        date_default_timezone_set($timeZone);
-
-        \Swoole\Coroutine::defer(function () use ($defaultIniZone, $defaultSysZone) {
-            date_default_timezone_set($defaultIniZone ?: $defaultSysZone);
-        });
+        return true;
     }
 
     protected function setDbTimeZone(MysqliClient $client, $tzn)
@@ -224,31 +210,6 @@ abstract class Auth extends Base
             var_dump($timeZone);
         }
         return $timeZone;
-    }
-
-    /**
-     * 指定Model的MysqlClient
-     * @param bool $onQuery 是否需要onQuery回调
-     * @param string $timeZone 是否需要设置时区， 格式: +8:00 -5:00
-     * @param callable $callable 回调里使用$this->Model无论多少次 始终会使用设置的那个MysqlClient连接
-     * @throws \EasySwoole\ORM\Exception\Exception
-     * @throws \EasySwoole\Pool\Exception\PoolEmpty
-     * @throws \Throwable
-     */
-    protected function invoke(bool $onQuery,string $timeZone, callable $callable)
-    {
-        DbManager::getInstance()->invoke(function (MysqliClient $client) use ($onQuery, $timeZone, $callable) {
-            $this->Model = $this->Model::invoke($client);
-            if ($onQuery) {
-                $this->Model->regOnQuery();
-            }
-            if ($timeZone) {
-                $this->setDbTimeZone($client, $timeZone);
-            }
-            if (is_callable($callable)) {
-                $callable();
-            }
-        });
     }
 
     protected function isSuper($rid = null)
@@ -554,7 +515,7 @@ abstract class Auth extends Base
             {
                 if ($v['tzn'] == $tzn)
                 {
-                    $this->setPhpTimeZone($v['tzs']);
+//                    $this->setPhpTimeZone($v['tzs']);
                     $filter['tznSql'] = ($tzn > 0 ? "+$tzn" : $tzn) . ':00';
                 }
             }
