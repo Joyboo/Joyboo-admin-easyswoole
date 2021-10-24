@@ -68,4 +68,21 @@ class Crontab extends Base
         $json = json_decode($data, true);
         return $json ? $json : '';
     }
+
+    public function getCrontab()
+    {
+        $serverName = config('SERVER_NAME');
+
+        if (!isset($serverName))
+        {
+            return [];
+        }
+
+        list($sys, $server) = explode('-', $serverName);
+
+        $server = intval($server);
+        // 0-启用,2-运行一次
+        return $this->where(['status' => [[0, 2], 'in']])
+            ->where("(FIND_IN_SET ({$server},server) > 0 and FIND_IN_SET({$sys}, sys) > 0)")->all();
+    }
 }

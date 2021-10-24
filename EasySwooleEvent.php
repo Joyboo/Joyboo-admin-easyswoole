@@ -5,6 +5,7 @@ namespace EasySwoole\EasySwoole;
 use App\Websocket\Events;
 use App\Websocket\Parser;
 use EasySwoole\EasySwoole\AbstractInterface\Event;
+use EasySwoole\EasySwoole\Crontab\Crontab;
 use EasySwoole\EasySwoole\Swoole\EventRegister;
 use EasySwoole\RedisPool\RedisPool;
 use EasySwoole\Socket\Dispatcher;
@@ -92,6 +93,12 @@ class EasySwooleEvent implements Event
         $register->add(EventRegister::onOpen, [Events::class, 'onOpen']);
         $register->add(EventRegister::onClose, [Events::class, 'onClose']);
         $register->add(EventRegister::onWorkerError, [Events::class, 'onError']);
+
+        // 注册自定义进程
+//        include_once EASYSWOOLE_ROOT . '/App/CustomProcess/init.php';
+
+        // 自动注册Crontab任务(粒度为分钟级，秒级或毫秒级请使用Timer)
+        Crontab::getInstance()->addTask(\App\Crontab\AutoRegister::class);
     }
 
     /**

@@ -53,7 +53,7 @@
 - [x] Mysql连接池
 - [x] 封装CURD业务（继承Auth即可实现基本的CURD）
 - [ ] i18n按 "模块-控制器-方法" 命名
-- [ ] Crontab定时任务
+- [x] Crontab定时任务
 - [ ] 客户端版本校验
 - [ ] 监听系统错误Wechat推送
 - [ ] 第三方OAuth扫码登录
