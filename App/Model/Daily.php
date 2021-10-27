@@ -19,9 +19,8 @@ class Daily extends Base
         if (isset($filter['gameid']) && $filter['gameid'] !== '') {
             $where['gameid'] = [is_string($filter['gameid']) ? [$filter['gameid']] : $filter['gameid'], 'in'];
         }
-        if (!isSuper($operinfo['rid'])) {
-            $where['gameid'] = [$operinfo['extension']['gameids'], 'in'];
-            $where['pkgbnd'] = [$operinfo['extension']['pkgbnd'], 'in'];
+        if (!empty($filter['pkgbnd'])) {
+            $where['pkgbnd'] = [is_string($filter['pkgbnd']) ? [$filter['pkgbnd']] : $filter['pkgbnd'], 'in'];
         }
         return $where;
     }

@@ -381,8 +381,8 @@ abstract class Auth extends Base
 
     public function index()
     {
-        $page = $this->get['page'] ?? 1;          // 当前页码
-        $limit = $this->get['pageSize'] ?? 20;    // 每页多少条数据
+        $page = $this->get[config('fetchSetting.pageField')] ?? 1;          // 当前页码
+        $limit = $this->get[config('fetchSetting.pageSize')] ?? 20;    // 每页多少条数据
 
         if ($where = $this->_search())
         {
@@ -401,8 +401,8 @@ abstract class Auth extends Base
         $total = $result->getTotalCount();
 
         // 后置操作
-        $items = $this->_afterIndex($items);
-        $this->success(['items' => $items, 'total' => $total]);
+        $data = $this->_afterIndex($items, $total);
+        $this->success($data);
     }
 
     protected function _order()
@@ -542,9 +542,9 @@ abstract class Auth extends Base
      * @param $items
      * @return mixed
      */
-    protected function _afterIndex($items)
+    protected function _afterIndex($items, $total)
     {
-        return $items;
+        return [config('fetchSetting.listField') => $items, config('fetchSetting.totalField') => $total];
     }
 
     protected function _afterEditGet($data)

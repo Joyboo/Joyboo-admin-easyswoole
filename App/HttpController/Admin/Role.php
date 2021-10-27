@@ -24,7 +24,7 @@ class Role extends Auth
         return $where;
     }
 
-    protected function _afterIndex($items)
+    protected function _afterIndex($items, $total)
     {
         // 处理超级管理员菜单权限
         /** @var Menu $Menu */
@@ -49,6 +49,6 @@ class Role extends Auth
                 $val['menu'] = array_map(function ($val) { return intval($val); }, $val['menu'] );
             }
         }
-        return $items;
+        return parent::_afterIndex($items, $total);
     }
 }

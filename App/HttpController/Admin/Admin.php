@@ -36,7 +36,7 @@ class Admin extends Auth
         return $where;
     }
 
-    protected function _afterIndex($items)
+    protected function _afterIndex($items, $total)
     {
         /** @var \App\Model\Role $Role */
         $Role = model('Role');
@@ -46,7 +46,7 @@ class Admin extends Auth
             unset($value['password']);
             $value->relation;
         }
-        return ['items' => $items, 'roleList' => $roleList];
+        return parent::_afterIndex(['items' => $items, 'roleList' => $roleList], $total);
     }
 
     /**

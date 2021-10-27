@@ -25,13 +25,13 @@ class AdminLog extends Auth
         return $where;
     }
 
-    protected function _afterIndex($items)
+    protected function _afterIndex($items, $total)
     {
         foreach ($items as &$value)
         {
             $value->relation = $value->relation ?? [];
         }
 
-        return $items;
+        return parent::_afterIndex($items, $total);
     }
 }

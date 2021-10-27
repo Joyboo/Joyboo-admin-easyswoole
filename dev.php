@@ -96,4 +96,18 @@ return [
         'dir' => EASYSWOOLE_ROOT . '/Public/',
         'domain' => 'http://image-admin-easyswoole.develop',
     ],
+
+    // 与客户端交互的Table字段名
+    'fetchSetting' => [
+        // 当前第几页
+        'pageField' => 'page',
+        // 每页大小
+        'sizeField' => 'pageSize',
+        // 列表dataSource的Key
+        'listField' => 'items',
+        // 合计页的Key
+        'footerField' => 'summer',
+        // 总条数
+        'totalField' => 'total'
+    ],
 ];
