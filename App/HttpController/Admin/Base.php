@@ -3,6 +3,7 @@
 
 namespace App\HttpController\Admin;
 
+use App\Common\Classes\DateUtils;
 use App\Common\Languages\Dictionary;
 use App\Common\Http\Code;
 use EasySwoole\EasySwoole\Core;
@@ -53,6 +54,18 @@ abstract class Base extends Controller
 
     protected function success($result = null, $msg = null)
     {
+        // 合计行antdv的rowKey
+        $name = config('fetchSetting.footerField');
+        // 合计行为二维数组
+        if (isset($result[$name]) && is_array($result[$name]))
+        {
+            $date = date(DateUtils::YmdHis);
+            $result[$name] = array_map(function ($value) use ($date) {
+                $value['key'] = strval($value['key'] ?? ($date . uniqid(true)));
+                return $value;
+            }, $result[$name]);
+        }
+
         is_null($msg) && $msg = Dictionary::SUCCESS;
         $this->writeJson(Code::SUCCESS, $result, $msg);
     }

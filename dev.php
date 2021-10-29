@@ -43,7 +43,7 @@ return [
             'user'          => 'root',
             'password'      => '0987abc123',
             'database'      => 'vben_admin',
-            'timeout'       => 3,
+            'timeout'       => 30,
             'charset'       => 'utf8mb4',
         ],
         'log' => [
@@ -52,7 +52,7 @@ return [
             'user'          => 'root',
             'password'      => '',
             'database'      => '',
-            'timeout'       => 3,
+            'timeout'       => 30,
             'charset'       => 'utf8mb4',
         ],
         'sdk' => [
@@ -61,7 +61,7 @@ return [
             'user'          => '',
             'password'      => '',
             'database'      => '',
-            'timeout'       => 3,
+            'timeout'       => 30,
             'charset'       => 'utf8mb4',
         ],
     ],
@@ -97,7 +97,7 @@ return [
         'domain' => 'http://image-admin-easyswoole.develop',
     ],
 
-    // 与客户端交互的Table字段名
+    // 与客户端交互的字段名
     'fetchSetting' => [
         // 当前第几页
         'pageField' => 'page',
@@ -108,6 +108,12 @@ return [
         // 合计页的Key
         'footerField' => 'summer',
         // 总条数
-        'totalField' => 'total'
+        'totalField' => 'total',
+        // 导出表头
+        'exportThField' => '_th',
+        // 导出全部时发送的文件名
+        'exprotFilename'=> '_fname',
     ],
+
+    'export_dir' => EASYSWOOLE_ROOT . '/Public/excel/',
 ];

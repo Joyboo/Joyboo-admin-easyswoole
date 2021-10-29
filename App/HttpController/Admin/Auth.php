@@ -3,12 +3,13 @@
 
 namespace App\HttpController\Admin;
 
+use App\Common\Classes\DateUtils;
 use App\Common\Exception\HttpParamException;
 use App\Common\Http\Code;
 use App\Common\Languages\Dictionary;
 use App\Model\Admin;
 use EasySwoole\ORM\Db\MysqliClient;
-use EasySwoole\ORM\DbManager;
+use EasySwoole\Utility\MimeType;
 use Linkunyuan\EsUtility\Classes\LamJwt;
 use App\Common\Classes\Extension;
 use EasySwoole\Http\Exception\FileException;
@@ -83,6 +84,12 @@ abstract class Auth extends Base
             return false;
         }
 
+        // 客户端版本
+        /*if (!$this->checkClientVersion($jwt))
+        {
+            return false;
+        }*/
+
         // uid验证
         /** @var Admin $Admin */
         $Admin = model('Admin');
@@ -118,6 +125,35 @@ abstract class Auth extends Base
         return $this->checkAuth();
     }
 
+    /**
+     * 检查客户端版本
+     * @param array $jwt
+     * @return bool
+     */
+    protected function checkClientVersion(array $jwt)
+    {
+        $sysinfo = config('sysinfo');
+        $versionCode = [
+            'version_later' => Code::VERSION_LATER,
+            'version_force' => Code::VERSION_FORCE,
+        ];
+        foreach ($versionCode as $vKey => $code)
+        {
+            if (isset($jwt['data'][$vKey]) && isset($sysinfo[$vKey]) && $jwt['data'][$vKey] != $sysinfo[$vKey])
+            {
+                $this->error($code);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 权限
+     * @return bool
+     * @throws \EasySwoole\ORM\Exception\Exception
+     * @throws \Throwable
+     */
     protected function checkAuth()
     {
         if ($this->isSuper())
@@ -422,6 +458,71 @@ abstract class Auth extends Base
         return $order;
     }
 
+    /**
+     * 因为有超深级的JSON存在，如果需要导出全部，那么数据必须在后端处理，字段与前端一一对应
+     * 有导出全部需求的菜单，不允许客户端field字段如extension.user.sid这样取值 或者 customRender 或者 插槽渲染, 否则导出全部时无法处理
+     * @throws \EasySwoole\Mysqli\Exception\Exception
+     * @throws \EasySwoole\ORM\Exception\Exception
+     * @throws \Throwable
+     */
+    public function export()
+    {
+        // 处理表头，客户端应统一处理表头
+        $th = [];
+        if ($thStr = $this->get[config('fetchSetting.exportThField')])
+        {
+            // _th=ymd=日期|reg=注册|login=登录
+
+            $thArray = explode('|', urldecode($thStr));
+            foreach ($thArray as $value)
+            {
+                list ($thKey, $thValue) = explode('=', $value);
+                // 以表头key表准
+                if ($thKey) {
+                    $th[$thKey] = $thValue ?? '';
+                }
+            }
+        }
+
+        if ($where = $this->_search())
+        {
+            $this->Model->where($where);
+        }
+
+        // 处理排序
+        $this->_order();
+
+        // todo 使用fetch模式
+        $items = $this->Model->all();
+        $data = $this->_afterIndex($items, 0)[config('fetchSetting.listField')];
+
+        // 是否需要合并合计行，如需合并，data为索引数组，为空字段需要占位
+
+        // xlsWriter固定内存模式导出
+        $excel = new \App\Common\Classes\XlsWriter();
+
+        // 客户端response响应头获取不到Content-Disposition，用参数传文件名
+        $fileName = $this->get[config('fetchSetting.exprotFilename')] ?? '';
+        if (!empty($fileName))
+        {
+            $fileName = sprintf('export-%d-%s.xlsx', date(DateUtils::YmdHis), substr(uniqid(), -5));
+        }
+
+        $excel->ouputFileByCursor($fileName, $th, $data);
+        $fullFilePath = $excel->getConfig('path') . $fileName;
+
+        $this->response()->sendFile($fullFilePath);
+//        $this->response()->withHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $this->response()->withHeader('Content-Type', MimeType::getMimeTypeByExt('xlsx'));
+//        $this->response()->withHeader('Content-Type', 'application/octet-stream');
+        // 客户端获取不到这个header,待调试,文件名暂时用客户端传的
+//        $this->response()->withHeader('Content-Disposition', 'attachment; filename=' . $fileName);
+        $this->response()->withHeader('Cache-Control', 'max-age=0');
+        $this->response()->end();
+
+        // todo 下载完成就没有用了，延时删除掉
+    }
+
     public function upload()
     {
         try {
@@ -490,24 +591,27 @@ abstract class Auth extends Base
     {
         $filter = [];
 
+        // begintime, beginday
         $begintime = $this->get['begintime'] ?? '';
         if ($begintime || is_numeric($begintime))
         {
             $begintime = is_numeric($begintime) ? date('Y-m-d', $begintime <= 0 ? strtotime("$begintime days") : $begintime) : $begintime;
-            $begintime = strtotime($begintime . (strpos($begintime, ':') ? '' : ' 00:00:00'));
+            $begintime = strtotime($begintime . (strpos($begintime, ':') !== false ? '' : ' 00:00:00'));
             $filter['begintime'] = $begintime;
             $filter['beginday'] = date('ymd', $begintime);
         }
 
+        // endtime, endday
         if(isset($this->get['endtime']))
         {
             $endtime = $this->get['endtime'];
             $endtime = is_numeric($endtime) ? date('Y-m-d', $endtime < 0 ? strtotime("$endtime days") : $endtime) : $endtime;
-            $endtime = strtotime($endtime . (strpos($endtime, ':') ? '' : ' 23:59:59'));
+            $endtime = strtotime($endtime . (strpos($endtime, ':') !== false ? '' : ' 23:59:59'));
             $filter['endtime'] = $endtime;
             $filter['endday'] = date('ymd', $endtime);
         }
 
+        // tzn, tznSql
         if (isset($this->get['tzn']))
         {
             $tzn = $this->get['tzn'];
@@ -515,7 +619,13 @@ abstract class Auth extends Base
             {
                 if ($v['tzn'] == $tzn)
                 {
-//                    $this->setPhpTimeZone($v['tzs']);
+                    // 时间戳转换为选择时区的时间戳
+                    foreach (['begintime', 'endtime'] as $t)
+                    {
+                        if (isset($filter[$t])) {
+                            $filter[$t] = DateUtils::getTimeZoneStamp($filter[$t], $v['tzs']);
+                        }
+                    }
                     $filter['tznSql'] = ($tzn > 0 ? "+$tzn" : $tzn) . ':00';
                 }
             }

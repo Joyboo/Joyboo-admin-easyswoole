@@ -12,7 +12,8 @@
         "linkunyuan/es-utility": "^1.0",
         "easyswoole/file-watcher": "^1.0",
         "easyswoole/db-migrate": "^1.0",
-        "easyswoole/wechat": "^2.0"
+        "easyswoole/wechat": "^2.0",
+        "viest/php-ext-xlswriter-ide-helper": "dev-master"
     },
     "autoload": {
         "psr-4": {
