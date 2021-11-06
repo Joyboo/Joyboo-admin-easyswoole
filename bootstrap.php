@@ -8,11 +8,6 @@ use EasySwoole\DatabaseMigrate\Config\Config as MrConfig;
 //全局bootstrap事件
 //date_default_timezone_set('Asia/Shanghai');
 
-
-if (is_file($funs = EASYSWOOLE_ROOT . '/App/Common/funcitons.php')) {
-    require_once $funs;
-}
-
 $config = [
     'host'          => '127.0.0.1',
     'port'          => 3306,
@@ -35,4 +30,4 @@ $MrConfig->setSeederPath(EASYSWOOLE_ROOT . '/Database/Seeds/');
 
 MigrateManager::getInstance($MrConfig);
 
-unset($config, $MrConfig, $funs);
+unset($config, $MrConfig);
