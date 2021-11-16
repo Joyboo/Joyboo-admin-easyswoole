@@ -64,7 +64,11 @@ class AutoRegister extends AbstractCronTask
             }
 
             $className = $value['rclass'];
-            // 异步任务模板类，默认在\App\Crontab命名空间
+            // 不设置模板类则用基础的Template类
+            if (empty($className)) {
+                $className = \App\Crontab\Template::class;
+            }
+            // 默认使用的\App\Crontab命名空间，也可以传完整命名空间
             if (strpos($className, '\\') === false) {
                 $className = '\\App\\Crontab\\' . ucfirst($className);
             }

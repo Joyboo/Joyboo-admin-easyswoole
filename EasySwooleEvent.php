@@ -2,6 +2,7 @@
 
 namespace EasySwoole\EasySwoole;
 
+use App\Common\Classes\CtxRequest;
 use App\Websocket\Events;
 use App\Websocket\Parser;
 use EasySwoole\EasySwoole\AbstractInterface\Event;
@@ -20,7 +21,6 @@ use EasySwoole\I18N\I18N;
 use EasySwoole\Component\Di;
 use EasySwoole\Http\Request;
 use EasySwoole\Http\Response;
-use EasySwoole\Http\GlobalParam\Hook;
 
 class EasySwooleEvent implements Event
 {
@@ -119,18 +119,14 @@ class EasySwooleEvent implements Event
 
     public static function httpGlobalOnRequest()
     {
-
-        $globalParamHook = new Hook();
-        $globalParamHook->register();
-
         I18N::getInstance()->addLanguage(new \App\Common\Languages\Chinese(), 'zh');
         I18N::getInstance()->addLanguage(new \App\Common\Languages\English(), 'en');
         I18N::getInstance()->setDefaultLanguage('zh');
         Di::getInstance()->set(
             SysConst::HTTP_GLOBAL_ON_REQUEST,
-            function (Request $request, Response $response) use ($globalParamHook) {
-                // 协程安全的全局变量
-                $globalParamHook->onRequest($request, $response);
+            function (Request $request, Response $response) {
+
+                CtxRequest::getInstance()->setRequest($request);
 
                 // 获取 header 中 language 参数
                 if ($request->hasHeader('accept-language')) {

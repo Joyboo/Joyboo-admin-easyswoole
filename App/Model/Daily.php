@@ -11,7 +11,6 @@ class Daily extends Base
     protected function buildWhere($filter = [])
     {
         $where = [];
-        $operinfo = $_SERVER[config('SERVER_EXTRA.operinfo')];
 
         if (isset($filter['tzn'])) {
             $where['timezone'] = $filter['tzn'];

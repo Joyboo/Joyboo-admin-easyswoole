@@ -20,6 +20,9 @@
             "App\\": "App/",
             "Tests\\": "Tests/"
         },
-        "files": ["vendor/linkunyuan/es-utility/src/helper.php"]
+        "files": [
+            "App/Common/funcitons.php",
+            "vendor/linkunyuan/es-utility/src/helper.php"
+        ]
     }
 }

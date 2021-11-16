@@ -4,6 +4,7 @@
 namespace App\Model;
 
 
+use App\Common\Classes\CtxRequest;
 use EasySwoole\Mysqli\QueryBuilder;
 
 class Log extends Base
@@ -41,12 +42,14 @@ class Log extends Base
 
     public function sqlWriteLog($sql = '')
     {
-        $operinfo = $_SERVER[config('SERVER_EXTRA.operinfo')] ?? [];
+
+        $operinfo = CtxRequest::getInstance()->getOperInfo();
+        $Request = CtxRequest::getInstance()->getRequest();
 
         $data = [
             'admid' => $operinfo['id'] ?? 0,
             'content' => $sql,
-            'ip' => ip()
+            'ip' => ip($Request)
         ];
 
         $this->data($data)->save();
