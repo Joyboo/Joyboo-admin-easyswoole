@@ -39,12 +39,6 @@ class Log extends Base
         return $this->hasOne(Admin::class, $callback, 'admid', 'id');
     }
 
-    // 啥也不需要做，否则死循环
-    protected function onQueryEvent($res = null, $builder = null, $start = 0)
-    {
-
-    }
-
     public function sqlWriteLog($sql = '')
     {
         $operinfo = $_SERVER[config('SERVER_EXTRA.operinfo')] ?? [];

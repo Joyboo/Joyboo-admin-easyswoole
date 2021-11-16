@@ -313,7 +313,7 @@ abstract class Auth extends Base
     protected function addPost()
     {
         $this->_writeBefore();
-        $result = $this->Model->regOnQuery()->data($this->post)->save();
+        $result = $this->Model->data($this->post)->save();
         $result ? $this->success() : $this->error(Code::ERROR);
     }
 
@@ -338,7 +338,7 @@ abstract class Auth extends Base
          * update返回的是执行语句是否成功,只有mysql语句出错时才会返回false,否则都为true
          * 所以需要getAffectedRows来判断是否更新成功
          */
-        $upd = $model->regOnQuery()->update($post);
+        $upd = $model->update($post);
         if ($upd === false)
         {
             trace('edit update失败: ' . $model->lastQueryResult()->getLastError());
@@ -381,7 +381,7 @@ abstract class Auth extends Base
             return $this->error(Code::ERROR, Dictionary::ADMIN_7);
         }
 
-        $result = $model->regOnQuery()->destroy();
+        $result = $model->destroy();
         $result ? $this->success() : $this->error(Code::ERROR, Dictionary::ERROR);
     }
 
@@ -410,7 +410,7 @@ abstract class Auth extends Base
             return $this->error(Code::ERROR, Dictionary::ADMIN_7);
         }
 
-        $model->regOnQuery()->update([$column => $post[$column]]);
+        $model->update([$column => $post[$column]]);
         $rowCount = $model->lastQueryResult()->getAffectedRows();
         $rowCount ? $this->success() : $this->error(Code::ERROR);
     }

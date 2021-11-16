@@ -25,11 +25,6 @@ class AdminLog extends Base
         return is_numeric($ip) ? $ip : ip2long($ip);
     }
 
-    protected function onQueryEvent($res = null, $builder = null, $start = 0)
-    {
-
-    }
-
     /**
      * 关联
      * @return array|mixed|null

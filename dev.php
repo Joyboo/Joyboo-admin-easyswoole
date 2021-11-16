@@ -89,8 +89,13 @@ return [
     'SERVER_EXTRA' => [
         'operinfo' => 'auth_operinfo',
     ],
-    // 不写日志的SQL，正则匹配
-    'NOT_WRITE_SQL' => ['/set\s+time_zone/i'],
+    // 不记录SQL的日志
+    'NOT_WRITE_SQL' => [
+        // 正则匹配规则
+        'pattern' => ['/set\s+time_zone/i', '/^SELECT/i'],
+        // 表名
+        'table' => ['admin_log', 'error_log', 'log'],
+    ],
 
     'UPLOAD' => [
         'dir' => EASYSWOOLE_ROOT . '/Public/',

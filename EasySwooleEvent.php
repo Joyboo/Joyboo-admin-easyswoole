@@ -41,12 +41,7 @@ class EasySwooleEvent implements Event
             DbManager::getInstance()->addConnection(new Connection($MysqlConfig), $mname);
         }
 
-        DbManager::getInstance()->onQuery(function (
-            \EasySwoole\ORM\Db\Result $result,
-            \EasySwoole\Mysqli\QueryBuilder $builder,
-            $start) {
-            trace($builder->getLastQuery(), 'info', 'sql');
-        });
+        self::dbOnQuery();
 
         //redis连接池注册
         $redisCfg = config('REDIS');
@@ -153,5 +148,52 @@ class EasySwooleEvent implements Event
 
                 return true;
             });
+    }
+
+    /**
+     * Mysql连接池全局onQuery事件
+     */
+    public static function dbOnQuery()
+    {
+        DbManager::getInstance()->onQuery(function (
+            \EasySwoole\ORM\Db\Result $result,
+            \EasySwoole\Mysqli\QueryBuilder $builder,
+            $start) {
+
+            $sql = $builder->getLastQuery();
+            if (empty($sql))
+            {
+                return;
+            }
+            trace($sql, 'info', 'sql');
+
+            // 不记录的SQL，表名
+            $logtable = config('NOT_WRITE_SQL.table');
+            foreach($logtable as $v)
+            {
+                if (
+                    strpos($sql, "`$v`")
+                    ||
+                    // 支持  XXX*这种模糊匹配
+                    (strpos($v, '*') && strpos($sql, '`' . str_replace('*', '', $v)))
+                )
+                {
+                    return;
+                }
+            }
+            // 不记录的SQL，正则
+            $not = config('NOT_WRITE_SQL.pattern');
+            foreach ($not as $pattern)
+            {
+                if (preg_match($pattern, $sql))
+                {
+                    return;
+                }
+            }
+
+            /** @var \App\Model\Log $Log */
+            $Log = model('Log');
+            $Log->sqlWriteLog($sql);
+        });
     }
 }
