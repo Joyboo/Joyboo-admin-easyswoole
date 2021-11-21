@@ -141,4 +141,40 @@ class Tree
         }
         return $result;
     }
+
+    /**
+     * 获取某一个子菜单的完整path(拼接父级)
+     * @param $id
+     * @return string
+     */
+    public function getHomePath($id)
+    {
+        $path = $this->buildPath($id);
+        // 倒转，因为是从儿子找到爸爸的
+        $path = array_reverse($path);
+        return '/' . implode('/', $path);
+    }
+
+    protected function buildPath($id = 0)
+    {
+        $result = [];
+        foreach ($this->menu as $key => $value)
+        {
+            if ($value instanceof \EasySwoole\ORM\AbstractModel)
+            {
+                $value = $value->toArray();
+            }
+
+            if ($value['id'] == $id)
+            {
+                $result[] = trim($value['path'], '/');
+                if (!empty($value['pid']))
+                {
+                    // 继续找爸爸
+                    $result[] = $this->buildPath($value['pid']);
+                }
+            }
+        }
+        return count($result) > 1 ? $result : current($result);
+    }
 }

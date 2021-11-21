@@ -103,11 +103,10 @@ class Admin extends Auth
         $config['sysinfo'] = config('sysinfo');
 
         // 客户端进入页,应存id
-        if (!empty($this->operinfo['extension']['homePage']))
+        if (!empty($this->operinfo['extension']['homePath']))
         {
-            /** @var \App\Model\Menu $Menu */
-            $Menu = model('Menu');
-            $homePage = $Menu->where('id', $this->operinfo['extension']['homePage'])->val('path');
+            $Tree = new \App\Common\Classes\Tree();
+            $homePage = $Tree->originData(['type' => [[0, 1], 'in']])->getHomePath($this->operinfo['extension']['homePath']);
         }
         $avatar = $this->operinfo['avatar'] ?? '';
         if ($avatar) {
