@@ -178,9 +178,10 @@ abstract class Auth extends Base
         /** @var \App\Model\Menu $Menu */
         $Menu = model('Menu');
         $priv = $Menu->where("permission<>'' and status=1")->field(['permission', 'id'])->indexBy('permission');
+        $priv && $priv = array_change_key_case($priv);
 
         // 无独立的权限菜单，但有别名认证的操作
-        $path = substr($fullpath, strpos($fullpath, '/', 1));
+        $path = strtolower(substr($fullpath, strpos($fullpath, '/', 1)));
         $arr = explode('\\', static::class);
         $className = strtolower(end($arr));
 
