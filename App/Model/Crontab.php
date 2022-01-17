@@ -71,18 +71,7 @@ class Crontab extends Base
 
     public function getCrontab()
     {
-        $serverName = config('SERVER_NAME');
-
-        if (!isset($serverName))
-        {
-            return [];
-        }
-
-        list($sys, $server) = explode('-', $serverName);
-
-        $server = intval($server);
-        // 0-启用,2-运行一次
-        return $this->where(['status' => [[0, 2], 'in']])
-            ->where("(FIND_IN_SET ({$server},server) > 0 and FIND_IN_SET({$sys}, sys) > 0)")->all();
+        // 1-启用,2-运行一次
+        return $this->where(['status' => [[1, 2], 'in']])->all();
     }
 }

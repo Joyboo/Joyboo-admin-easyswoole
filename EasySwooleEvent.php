@@ -30,7 +30,6 @@ class EasySwooleEvent implements Event
         // 注册异常处理器
         \EasySwoole\EasySwoole\Trigger::getInstance(new \App\Common\Handler\Trigger());
 
-        // // 是否可以修改Config实现方式将某一个文件的配置放进主配置的XX下标 ???
         Config::getInstance()->loadDir(EASYSWOOLE_ROOT . '/App/Common/Config');
 
         // mysql连接池
@@ -187,8 +186,8 @@ class EasySwooleEvent implements Event
                 }
             }
 
-            /** @var \App\Model\Log $Log */
-            $Log = model('Log');
+            /** @var \App\Model\LogSql $Log */
+            $Log = model('LogSql');
             $Log->sqlWriteLog($sql);
         });
     }

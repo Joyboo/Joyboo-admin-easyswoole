@@ -48,7 +48,7 @@ abstract class Auth extends Base
      * 无需认证的操作
      * 	@var string
      */
-    protected $_uckSysAction = 'upload';
+    protected $_uckSysAction = 'upload,options';
 
     /**
      * 每个继承类可在此定义无需认证的操作，格式为 操作1,操作2,....
@@ -85,12 +85,6 @@ abstract class Auth extends Base
             return false;
         }
 
-        // 客户端版本
-        /*if (!$this->checkClientVersion($jwt))
-        {
-            return false;
-        }*/
-
         // uid验证
         /** @var Admin $Admin */
         $Admin = model('Admin');
@@ -124,29 +118,6 @@ abstract class Auth extends Base
 
         CtxRequest::getInstance()->setOperInfo($this->operinfo);
         return $this->checkAuth();
-    }
-
-    /**
-     * 检查客户端版本
-     * @param array $jwt
-     * @return bool
-     */
-    protected function checkClientVersion(array $jwt)
-    {
-        $sysinfo = config('sysinfo');
-        $versionCode = [
-            'version_later' => Code::VERSION_LATER,
-            'version_force' => Code::VERSION_FORCE,
-        ];
-        foreach ($versionCode as $vKey => $code)
-        {
-            if (isset($jwt['data'][$vKey]) && isset($sysinfo[$vKey]) && $jwt['data'][$vKey] != $sysinfo[$vKey])
-            {
-                $this->error($code);
-                return false;
-            }
-        }
-        return true;
     }
 
     /**
@@ -232,22 +203,6 @@ abstract class Auth extends Base
         }
 
         return true;
-    }
-
-    protected function setDbTimeZone(MysqliClient $client, $tzn)
-    {
-        $sql = "set time_zone = '$tzn';";
-        trace($sql, 'info', 'sql');
-        $client->rawQuery($sql);
-    }
-
-    protected function getDbTimeZone(MysqliClient $client, $debug = true)
-    {
-        $timeZone = $client->rawQuery("SHOW VARIABLES LIKE '%time_zone%'");
-        if ($debug) {
-            var_dump($timeZone);
-        }
-        return $timeZone;
     }
 
     protected function isSuper($rid = null)
@@ -420,12 +375,9 @@ abstract class Auth extends Base
     public function index()
     {
         $page = $this->get[config('fetchSetting.pageField')] ?? 1;          // 当前页码
-        $limit = $this->get[config('fetchSetting.pageSize')] ?? 20;    // 每页多少条数据
+        $limit = $this->get[config('fetchSetting.sizeField')] ?? 20;    // 每页多少条数据
 
-        if ($where = $this->_search())
-        {
-            $this->Model->where($where);
-        }
+        $where = $this->_search();
 
         // 处理排序
         $this->_order();
@@ -433,7 +385,7 @@ abstract class Auth extends Base
         $this->Model->scopeIndex();
 
         $model = $this->Model->limit($limit * ($page - 1), $limit)->withTotalCount();
-        $items = $model->all();
+        $items = $model->all($where);
 
         $result = $model->lastQueryResult();
         $total = $result->getTotalCount();
@@ -582,7 +534,7 @@ abstract class Auth extends Base
      */
     protected function _search()
     {
-        return [];
+        return null;
     }
 
     /**
@@ -667,5 +619,18 @@ abstract class Auth extends Base
     protected function _writeBefore()
     {
 
+    }
+
+    protected function _options($value, $label, $where = null)
+    {
+        $all = $this->Model->setOrder()->field([$label, $value])->all($where);
+
+        $result = [];
+        foreach ($all as $item)
+        {
+            $result[] = ['value' => $item[$value], 'label' => $item[$label]];
+        }
+
+        return $result;
     }
 }

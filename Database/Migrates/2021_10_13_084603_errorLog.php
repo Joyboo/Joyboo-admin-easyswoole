@@ -19,7 +19,7 @@ class ErrorLog
      */
     public function up()
     {
-        return "CREATE TABLE IF NOT EXISTS `error_log` (
+        return "CREATE TABLE IF NOT EXISTS `log_error` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `uid` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'uid',
   `username` varchar(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '账号',
@@ -42,6 +42,6 @@ class ErrorLog
      */
     public function down()
     {
-        return DDLBuilder::dropIfExists('error_log');
+        return DDLBuilder::dropIfExists('log_error');
     }
 }

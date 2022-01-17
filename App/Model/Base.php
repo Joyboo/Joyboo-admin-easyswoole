@@ -101,4 +101,20 @@ abstract class Base extends AbstractModel
         }
         return $this;
     }
+
+    /**
+     * 不修改配置的情况下，all结果集转Collection，文档： http://www.easyswoole.com/Components/Orm/toArray.html
+     * @param bool $toArray
+     * @return array|bool|\EasySwoole\ORM\Collection\Collection|\EasySwoole\ORM\Db\Cursor|\EasySwoole\ORM\Db\CursorInterface
+     * @throws \EasySwoole\ORM\Exception\Exception
+     * @throws \Throwable
+     */
+    public function ormToCollection($toArray = true)
+    {
+        $result = $this->all();
+        if (!$result instanceof \EasySwoole\ORM\Collection\Collection) {
+            $result = new \EasySwoole\ORM\Collection\Collection($result);
+        }
+        return $toArray ? $result->toArray() : $result;
+    }
 }

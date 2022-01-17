@@ -4,11 +4,12 @@
 namespace App\HttpController\Admin;
 
 /**
- * Class ErrorLog
- * @property \App\Model\ErrorLog $Model
+ * 错误日志
+ * Class LogError
+ * @property \App\Model\LogError $Model
  * @package App\HttpController\Admin
  */
-class ErrorLog extends Auth
+class LogError extends Auth
 {
     protected $_uckAction = 'multiple';
 
@@ -37,8 +38,7 @@ class ErrorLog extends Auth
                 $error['stack'] = $error['stack'] ?? '';
 
                 // 创建克隆对象，重要
-                $model = $this->Model->_clone();
-                $model->data($error)->save();
+                $this->Model->_clone()->data($error)->save();
             }
             catch (\Exception | \Throwable $e) {}
         }

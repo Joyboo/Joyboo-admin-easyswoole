@@ -4,7 +4,7 @@
 namespace App\Model;
 
 
-class ErrorLog extends Base
+class LogError extends Base
 {
     protected function setTimeAttr($value, $alldata)
     {

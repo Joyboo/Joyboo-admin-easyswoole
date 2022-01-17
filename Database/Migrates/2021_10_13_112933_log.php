@@ -19,7 +19,7 @@ class Log
      */
     public function up()
     {
-        return " CREATE TABLE  IF NOT EXISTS `log` (
+        return " CREATE TABLE  IF NOT EXISTS `log_sql` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `admid` int(10) unsigned NOT NULL COMMENT '操作人id(关联admin表的主键)',
   `content` text COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '日志内容',
@@ -36,6 +36,6 @@ class Log
      */
     public function down()
     {
-        return DDLBuilder::dropIfExists('log');
+        return DDLBuilder::dropIfExists('log_sql');
     }
 }

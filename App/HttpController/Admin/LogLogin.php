@@ -3,14 +3,15 @@
 
 namespace App\HttpController\Admin;
 
-use \App\Model\AdminLog as AdminLogModel;
+use \App\Model\LogLogin as AdminLogModel;
 
 /**
- * Class AdminLog
+ * 登录日志
+ * Class LogLogin
  * @property AdminLogModel $Model
  * @package App\HttpController\Admin
  */
-class AdminLog extends Auth
+class LogLogin extends Auth
 {
     protected function _search()
     {

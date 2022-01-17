@@ -7,7 +7,7 @@ namespace App\Model;
 use App\Common\Classes\CtxRequest;
 use EasySwoole\Mysqli\QueryBuilder;
 
-class Log extends Base
+class LogSql extends Base
 {
     /** @var bool|string 是否开启时间戳 */
     protected  $autoTimeStamp = true;

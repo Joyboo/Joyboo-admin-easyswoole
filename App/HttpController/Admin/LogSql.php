@@ -4,7 +4,10 @@
 namespace App\HttpController\Admin;
 
 
-class Log extends Auth
+/**
+ * 操作日志
+ */
+class LogSql extends Auth
 {
     protected function _search()
     {

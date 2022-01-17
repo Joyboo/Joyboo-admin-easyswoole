@@ -52,21 +52,4 @@ class Sysinfo extends Base
         }
         return $result;
     }
-
-    public function toArraybyEval($value, $encode = false)
-    {
-        try {
-            $return = eval('return ' . $value . ';');
-            if (!is_array($return))
-            {
-                return false;
-            }
-
-            return $encode ? json_encode($return) : $return;
-        }
-        catch (\Exception | \Throwable $e)
-        {
-            return false;
-        }
-    }
 }

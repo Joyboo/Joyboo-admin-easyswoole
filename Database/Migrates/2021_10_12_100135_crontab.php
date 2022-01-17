@@ -30,8 +30,6 @@ class Crontab
   `remark` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '备注',
   `status` tinyint(2) NOT NULL DEFAULT '0' COMMENT '0-启用,1-禁用，2-运行一次',
   `instime` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '写入时间',
-  `server` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '运行在哪些机器',
-  `sys` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '1-report,2-pay,3-sdk,4-后台',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='定时任务表'";
     }

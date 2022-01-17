@@ -19,7 +19,7 @@ class AdminLog
      */
     public function up()
     {
-        return "CREATE TABLE IF NOT EXISTS `admin_log` (
+        return "CREATE TABLE IF NOT EXISTS `log_login` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `uid` int(10) unsigned NOT NULL DEFAULT '0',
   `name` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '' COMMENT '管理员',
@@ -38,6 +38,6 @@ class AdminLog
      */
     public function down()
     {
-        return DDLBuilder::dropIfExists('admin_log');
+        return DDLBuilder::dropIfExists('log_login');
     }
 }

@@ -152,7 +152,7 @@ class Tree
         $path = $this->buildPath($id);
         // 倒转，因为是从儿子找到爸爸的
         $path = array_reverse($path);
-        return '/' . implode('/', $path);
+        return $path ? '' : ('/' . implode('/', $path));
     }
 
     protected function buildPath($id = 0)

@@ -6,7 +6,7 @@ namespace App\Model;
 
 use EasySwoole\Mysqli\QueryBuilder;
 
-class AdminLog extends Base
+class LogLogin extends Base
 {
     /** @var bool|string 是否开启时间戳 */
     protected  $autoTimeStamp = true;

@@ -95,13 +95,6 @@ class Admin extends Auth
 
     public function getUserInfo()
     {
-        $upload = config('UPLOAD');
-
-        // 图片上传路径
-        $config = ['imageDomain' => $upload['domain']];
-
-        $config['sysinfo'] = config('sysinfo');
-
         // 客户端进入页,应存id
         if (!empty($this->operinfo['extension']['homePath']))
         {
@@ -109,11 +102,6 @@ class Admin extends Auth
             $homePage = $Tree->originData(['type' => [[0, 1], 'in']])->getHomePath($this->operinfo['extension']['homePath']);
         }
         $avatar = $this->operinfo['avatar'] ?? '';
-        if ($avatar) {
-            $avatar = $config['imageDomain'] . $avatar;
-        }
-
-        $super = $this->isSuper();
 
         $result = [
             'id' => $this->operinfo['id'],
@@ -129,27 +117,6 @@ class Admin extends Auth
                 ]
             ]
         ];
-
-        // 游戏和包
-        /** @var \App\Model\Game $Game */
-        $Game = model('Game');
-        /** @var \App\Model\Package $Package */
-        $Package = model('Package');
-        if (! $super)
-        {
-            $gameids = $this->operinfo['extension']['gameids'] ?? [];
-            is_string($gameids) && $gameids = explode(',', $gameids);
-            $Game->where(['id' => [$gameids, 'in']]);
-
-            $pkgbnd = $this->operinfo['extension']['pkgbnd'] ?? [];
-            is_string($pkgbnd) && $pkgbnd = explode(',', $pkgbnd);
-            $Package->where(['pkgbnd' => [$pkgbnd, 'in']]);
-        }
-
-        $result['gameList'] = $Game->where('status', 1)->setOrder()->field(['id', 'name'])->all();
-        $result['pkgList'] = $Package->field(['gameid', 'pkgbnd', 'name', 'id'])->setOrder()->all();
-
-        $result['config'] = $config;
 
         $this->success($result, Dictionary::SUCCESS);
     }
@@ -175,7 +142,7 @@ class Admin extends Auth
     {
         $result = $this->_views();
 
-        unset($items['password']);
+        unset($items['password'], $items['instime'], $items['itime']);
         $result['result'] = $items;
 
         return $result;
