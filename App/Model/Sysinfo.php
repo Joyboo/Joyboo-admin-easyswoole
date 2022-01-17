@@ -1,8 +1,9 @@
 <?php
 
-
 namespace App\Model;
-use \EasySwoole\EasySwoole\Config;
+
+use App\Task\VersionUpdate;
+use EasySwoole\EasySwoole\Task\TaskManager;
 
 
 class Sysinfo extends Base
@@ -51,5 +52,19 @@ class Sysinfo extends Base
             $result[$value->varname] = $value->value;
         }
         return $result;
+    }
+
+    // todo 更新版本暂时这么做，后面要优化
+    protected static function onAfterUpdate(Base $model, $res)
+    {
+       $varname = $model->getAttr('varname');
+        foreach (['version_force', 'version_later'] as $col)
+        {
+            if ($varname === $col)
+            {
+                $force = $col === 'version_force' ? 1: 0;
+                TaskManager::getInstance()->async(new VersionUpdate(['force' => $force]));
+            }
+        }
     }
 }

@@ -11,14 +11,15 @@ class Log implements LoggerInterface
 
     function __construct(string $logDir = null)
     {
-        if (empty($logDir)) {
-            $logDir = getcwd();
-        }
-        $this->logDir = $logDir;
+        $this->logDir = $logDir ? : '';
     }
 
     function log(?string $msg, int $logLevel = self::LOG_LEVEL_INFO, string $category = 'debug'): string
     {
+        if (empty($this->logDir))
+        {
+            $this->logDir = config('LOG.dir');
+        }
         // 按月分目录
         $dir = $this->logDir . '/' . date('Ym');
         is_dir($dir) or @ mkdir($dir);

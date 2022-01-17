@@ -50,8 +50,11 @@ class EasySwooleEvent implements Event
             RedisPool::getInstance()->register($RedisConfig, $rname);
         }
 
-        // 全局onRequest回调
+        // 注册全局onRequest回调
         self::httpGlobalOnRequest();
+
+        // 注册SwooleTable
+        \App\Common\Classes\FdManager::getInstance()->register();
     }
 
     public static function mainServerCreate(EventRegister $register)
@@ -109,8 +112,19 @@ class EasySwooleEvent implements Event
             $rule = new \EasySwoole\FileWatcher\WatchRule(EASYSWOOLE_ROOT . "/App");
             $watcher->addRule($rule);
             $watcher->setOnChange(function () {
-                trace('检测到文件变更， worker进程reload ...');
-                ServerManager::getInstance()->getSwooleServer()->reload();
+                var_dump('检测到文件变更， worker进程reload ...');
+                $Server = ServerManager::getInstance()->getSwooleServer();
+
+                // worker进程reload不会触发客户端的断线重连，但是原来的fd已经不可用了，手动close
+                foreach ($Server->connections as $fd)
+                {
+                    // 不要在 close 之后写清理逻辑。应当放置到 onClose 回调中处理
+                    $Server->close($fd);
+                }
+
+                // 不sleep会死锁
+                \Swoole\Coroutine::sleep(0.1);
+                $Server->reload();
             });
             $watcher->attachServer(ServerManager::getInstance()->getSwooleServer());
         }

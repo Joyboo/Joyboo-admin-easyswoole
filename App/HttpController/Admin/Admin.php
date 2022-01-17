@@ -45,6 +45,11 @@ class Admin extends Auth
         {
             unset($value['password']);
             $value->relation;
+            if (!$this->isExport)
+            {
+                // 管理员是否在线
+                $value->online = is_online_uid($value['id']);
+            }
         }
         return parent::_afterIndex(['items' => $items, 'roleList' => $roleList], $total);
     }

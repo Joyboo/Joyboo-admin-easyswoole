@@ -6,3 +6,4 @@ vendor/*
 Log/*
 Temp/*
 /.phpunit.result.cache
+/Public/

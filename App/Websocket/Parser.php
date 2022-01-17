@@ -23,6 +23,14 @@ class Parser implements ParserInterface
      */
     public function decode($raw, $client) : ? Caller
     {
+        var_dump($raw, '----raw clientId: ' . $client->getFd());
+        // 心跳
+        if ($raw === config('websocket.heartbeat.request_message'))
+        {
+            $this->respClient($client, config('websocket.heartbeat.response_message'));
+            return null;
+        }
+
         // 解析 客户端原始消息
         $data = json_decode($raw, true);
         if (!is_array($data)) {
@@ -47,6 +55,7 @@ class Parser implements ParserInterface
         $caller = new Caller();
         $caller->setControllerClass($class);
         $caller->setAction($action);
+        unset($data['class'], $data['action']);
         $caller->setArgs($data);
         return $caller;
     }
@@ -62,12 +71,18 @@ class Parser implements ParserInterface
          * 这里返回响应给客户端的信息
          * 这里应当只做统一的encode操作 具体的状态等应当由 Controller处理
          */
-        return $response->getMessage();
+        $message = $response->getMessage();
+        // 默认是 WEBSOCKET_OPCODE_TEXT 类型，转文本
+        if (is_array($message))
+        {
+            $message = json_encode($message);
+        }
+        return $message;
     }
 
 
     /**
-     * 出错，响应客户端
+     * 响应客户端
      * @param WebSocket $client
      * @param string $message
      * @param string $status
@@ -87,10 +102,15 @@ class Parser implements ParserInterface
         if (is_null($data)) {
             return;
         }
-        logger()->error($data, 'error');
+//        trace($data, 'error');
         $fd = $client->getFd();
         if ($server->isEstablished($fd)) {
             $server->push($fd, $data, $response->getOpCode(), $response->isFinish());
+        } else {
+//            \Swoole\Coroutine::sleep(0.1);
+//            $server->close($fd);
+            // 暂时记录日志，看有无此场景，视情况决定处理
+            trace("isEstablished为false， fd={$fd}, data={$data}", 'error');
         }
     }
 }

@@ -64,13 +64,14 @@ abstract class Auth extends Base
 
     protected function checkAuthorization()
     {
-        if (! $this->request()->hasHeader('authorization'))
+        $tokenKey = config('TOKEN_KEY');
+        if (! $this->request()->hasHeader($tokenKey))
         {
             $this->error(Code::ERROR_1, Dictionary::HTTP_1);
             return false;
         }
 
-        $authorization = $this->request()->getHeader('authorization');
+        $authorization = $this->request()->getHeader($tokenKey);
         if (is_array($authorization))
         {
             $authorization = current($authorization);

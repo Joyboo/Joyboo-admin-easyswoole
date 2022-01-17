@@ -2,7 +2,12 @@
 
 namespace App\Websocket;
 
-use EasySwoole\FastCache\Cache;
+use App\Common\Classes\FdManager;
+use App\Common\Classes\WsEvent;
+use App\Model\ChatTopic;
+use App\Model\Game;
+use App\Model\Package;
+use Linkunyuan\EsUtility\Classes\LamJwt;
 use Swoole\WebSocket\Server;
 
 /**
@@ -11,6 +16,10 @@ use Swoole\WebSocket\Server;
  */
 class Events
 {
+    // 关闭客户端
+    const CLOSE = 'event_1';
+    // 客户端版本更新
+    const SYSTEM_VERSION_UPDATE = 'event_2';
 
     /**
      * @param Server $server
@@ -18,11 +27,25 @@ class Events
      */
     public static function onOpen(Server $server, \Swoole\Http\Request $request)
     {
-        //绑定fd变更状态
-//        Cache::getInstance()->enQueue('client_list', $request->fd);
-//        Cache::getInstance()->set('fd' . $request->fd, ["value" => $user['id']], 3600);
-        var_dump($request->fd, $request->server);
-//        $server->push($request->fd, '返回onopen数据:' . $request->fd);
+        $tokenKey = config('TOKEN_KEY');
+        $table = FdManager::getInstance();
+
+        $token = $request->get[$tokenKey];
+
+        if (empty($tokenKey))
+        {
+            return $server->push($request->fd, json_encode(['event' => self::CLOSE, 'message' => 'Token Empty.']));
+        }
+        // jwt验证
+        $jwt = LamJwt::verifyToken($token, config('auth.jwtkey'));
+        $id = $jwt['data']['id'] ?? '';
+        if ($jwt['status'] != 1 || empty($id))
+        {
+            return $server->push($request->fd, json_encode(['event' => self::CLOSE, 'message' => 'Auth Fail']));
+        }
+
+        $table->setUidFd($id, $request->fd);
+        $table->setFdUid($request->fd, $id);
     }
 
     /**
@@ -34,8 +57,17 @@ class Events
      */
     public static function onClose(\Swoole\Server $server, int $fd, int $reactorId)
     {
-//        $queue = Cache::getInstance()->deQueue('client_list');
-        echo "client-{$fd} is closed\n";
+        $info = $server->connection_info($fd);
+        if ($info['websocket_status'] === 3)
+        {
+            echo "[websocket] client-{$fd} is closed \n";
+            $table = FdManager::getInstance();
+            $uid = $table->getUidByFd($fd);
+            $table->delUidByFd($fd);
+            $uid && $table->delFdByUid($uid);
+        } else {
+            echo "[http] client-{$fd} is closed \n";
+        }
     }
 
     /**
@@ -49,6 +81,11 @@ class Events
      */
     public static function onError(\Swoole\Server $serv, int $worker_id, int $worker_pid, int $exit_code, int $signal)
     {
-        logger()->error("WebSocket onError: worker_id={$worker_id} worker_pid={$worker_pid} exit_code={$exit_code} signal={$signal}", 'error');
+        trace("WebSocket onError: worker_id={$worker_id} worker_pid={$worker_pid} exit_code={$exit_code} signal={$signal}", 'error');
+    }
+
+    public static function onShutdown(\Swoole\Server $serv)
+    {
+        trace('onShutdown---------------');
     }
 }

@@ -96,4 +96,5 @@ return [
         // 导出全部时发送的文件名
         'exprotFilename'=> '_fname',
     ],
+    'TOKEN_KEY' => 'authorization',
 ];
