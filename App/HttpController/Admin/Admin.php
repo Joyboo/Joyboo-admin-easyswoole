@@ -201,53 +201,6 @@ class Admin extends Auth
         }
     }
 
-    protected function editPost()
-    {
-        if (!$this->isSuper())
-        {
-            $id = $this->post['id'];
-            if (empty($id)) {
-                $this->error(Code::ERROR, Dictionary::ADMIN_7);
-            }
-            $origin = $this->Model->where('id', $id)->val('extension');
-
-            /**
-             * 和数据库对比，如果原来已分配的包，当前操作用户没有这个包的权限，要追加进post
-             * @param $current 当前操作用户的gameids或pkgbnd
-             * @param $org 数据库原值，gameid或pkgbnd
-             * @param $post $this->post[xxx]
-             */
-            $diffAuth = function ($current, $org, $post) {
-                is_string($current) && $current = explode(',', $current);
-                is_string($org) && $org = explode(',', $org);
-                is_string($post) && $post = explode(',', $post);
-
-                $result = [];
-                foreach ($org as $value)
-                {
-                    if (!in_array($value, $current)) { $result[] = $value; }
-                }
-
-                return array_unique(array_merge($post, $result));
-            };
-
-            // 包权限
-            $this->post['extension']['pkgbnd'] = $diffAuth(
-                $this->operinfo['extension']['pkgbnd'],
-                $origin['pkgbnd'],
-                $this->post['extension']['pkgbnd']
-            );
-            // 游戏权限
-            $this->post['extension']['gameids'] = $diffAuth(
-                $this->operinfo['extension']['gameids'],
-                $origin['gameids'],
-                $this->post['extension']['gameids']
-            );
-        }
-
-        parent::editPost();
-    }
-
     public function getToken()
     {
         // 此接口比较重要，只允许超级管理员调用
