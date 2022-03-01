@@ -5,6 +5,13 @@ use EasySwoole\DatabaseMigrate\MigrateCommand;
 use EasySwoole\DatabaseMigrate\MigrateManager;
 use EasySwoole\DatabaseMigrate\Config\Config as MrConfig;
 
+/******************************************************************************************
+ * 关闭死锁检测相关堆栈信息输出到日志
+ *    Swoole文档:     https://wiki.swoole.com/#/coroutine/coroutine?id=deadlock_check
+ *    EasySwoole文档: http://www.easyswoole.com/QuickStart/install.html
+ ******************************************************************************************/
+\Swoole\Coroutine::set(['enable_deadlock_check' => false]);
+
 //全局bootstrap事件
 //date_default_timezone_set('Asia/Shanghai');
 
