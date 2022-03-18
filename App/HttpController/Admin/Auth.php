@@ -8,7 +8,6 @@ use App\Common\Exception\HttpParamException;
 use App\Common\Http\Code;
 use App\Common\Languages\Dictionary;
 use App\Model\Admin;
-use EasySwoole\ORM\Db\MysqliClient;
 use EasySwoole\Utility\MimeType;
 use Linkunyuan\EsUtility\Classes\LamJwt;
 use App\Common\Classes\Extension;
@@ -122,7 +121,7 @@ abstract class Auth extends Base
     }
 
     /**
-     * 权限
+     * 权限 todo 可能需要使用Policy重写，文档: http://www.easyswoole.com/Components/policy.html
      * @return bool
      * @throws \EasySwoole\ORM\Exception\Exception
      * @throws \Throwable
@@ -295,16 +294,17 @@ abstract class Auth extends Base
         /*
          * update返回的是执行语句是否成功,只有mysql语句出错时才会返回false,否则都为true
          * 所以需要getAffectedRows来判断是否更新成功
+         *
+         * 2022-03-18 edit 只要SQL没有错误就认为更新成功
          */
         $upd = $model->update($post);
         if ($upd === false)
         {
-            trace('edit update失败: ' . $model->lastQueryResult()->getLastError());
+            trace('edit update失败: ' . $model->lastQueryResult()->getLastError(), 'error');
+            $this->error(Code::ERROR, Dictionary::FAIL);
+        } else {
+            $this->success();
         }
-
-        // 影响行数
-        $rowCount = $model->lastQueryResult()->getAffectedRows();
-        $rowCount ? $this->success() : $this->error(Code::ERROR, Dictionary::FAIL);
     }
 
     protected function editGet()
@@ -368,9 +368,9 @@ abstract class Auth extends Base
             return $this->error(Code::ERROR, Dictionary::ADMIN_7);
         }
 
-        $model->update([$column => $post[$column]]);
-        $rowCount = $model->lastQueryResult()->getAffectedRows();
-        $rowCount ? $this->success() : $this->error(Code::ERROR);
+        $upd = $model->update([$column => $post[$column]]);
+//        $rowCount = $model->lastQueryResult()->getAffectedRows();
+        $upd !== false ? $this->success() : $this->error(Code::ERROR);
     }
 
     public function index()
@@ -566,40 +566,9 @@ abstract class Auth extends Base
             $filter['endday'] = date('ymd', $endtime);
         }
 
-        // tzn, tznSql
-        if (isset($this->get['tzn']))
-        {
-            $tzn = $this->get['tzn'];
-            foreach (config('sysinfo.region_domain.region') as $k => $v)
-            {
-                if ($v['tzn'] == $tzn)
-                {
-                    // 时间戳转换为选择时区的时间戳
-                    foreach (['begintime', 'endtime'] as $t)
-                    {
-                        if (isset($filter[$t])) {
-                            $filter[$t] = DateUtils::getTimeZoneStamp($filter[$t], $v['tzs']);
-                        }
-                    }
-                    $filter['tznSql'] = ($tzn > 0 ? "+$tzn" : $tzn) . ':00';
-                }
-            }
-            $filter['tzn'] = $tzn;
-        }
+        // ... other
 
-        if (isset($this->get['gameid']))
-        {
-            $gameid = $this->get['gameid'];
-            if (strpos($gameid, ',') !== false)
-            {
-                $gameid = explode(',', $gameid);
-            }
-            $filter['gameid'] = $gameid;
-        }
-
-        // ... 还有很多
-
-        return $filter;
+        return $filter + $this->get;
     }
 
     /**
