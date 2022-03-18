@@ -117,7 +117,7 @@ abstract class Auth extends Base
         }
 
         // 管理员信息挂载到request
-        $this->request()->withAttribute('openinfo', $this->operinfo);
+        $this->request()->withAttribute('operinfo', $this->operinfo);
         return $this->checkAuth();
     }
 
