@@ -76,7 +76,7 @@ return [
         // 正则匹配规则
         'pattern' => ['/set\s+time_zone/i', '/^SELECT/i'],
         // 表名
-        'table' => ['log_login', 'log_error', 'log_sql'],
+        'table' => ['log_login', 'log_error', 'log_sql', 'http_tracker'],
     ],
 
     // 与客户端交互的字段名

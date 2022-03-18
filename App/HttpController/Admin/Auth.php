@@ -4,7 +4,6 @@
 namespace App\HttpController\Admin;
 
 use App\Common\Classes\DateUtils;
-use App\Common\Classes\CtxRequest;
 use App\Common\Exception\HttpParamException;
 use App\Common\Http\Code;
 use App\Common\Languages\Dictionary;
@@ -117,7 +116,8 @@ abstract class Auth extends Base
             $this->operinfo['extension'][$col] = $colValue;
         }
 
-        CtxRequest::getInstance()->setOperInfo($this->operinfo);
+        // 管理员信息挂载到request
+        $this->request()->withAttribute('openinfo', $this->operinfo);
         return $this->checkAuth();
     }
 

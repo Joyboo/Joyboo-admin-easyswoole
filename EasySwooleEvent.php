@@ -3,6 +3,7 @@
 namespace EasySwoole\EasySwoole;
 
 use App\Common\Classes\CtxRequest;
+use App\Common\HttpTracker\Index as HttpTracker;
 use App\Websocket\Events;
 use App\Websocket\Parser;
 use EasySwoole\EasySwoole\AbstractInterface\Event;
@@ -92,7 +93,7 @@ class EasySwooleEvent implements Event
         $register->add(EventRegister::onWorkerError, [Events::class, 'onError']);
 
         // 注册自定义进程
-//        include_once EASYSWOOLE_ROOT . '/App/CustomProcess/init.php';
+        include_once EASYSWOOLE_ROOT . '/App/CustomProcess/init.php';
 
         // 自动注册Crontab任务(粒度为分钟级，秒级或毫秒级请使用Timer)
         Crontab::getInstance()->addTask(\App\Crontab\AutoRegister::class);
@@ -155,7 +156,16 @@ class EasySwooleEvent implements Event
                     }
                 }
 
+                // 开启链路追踪
+                $point = HttpTracker::getInstance()->createStart('Joyboo:onRequest');
+                $point && $point->setStartArg(HttpTracker::startArgsRequest($request));
                 return true;
+            });
+
+        Di::getInstance()->set(SysConst::HTTP_GLOBAL_AFTER_REQUEST,
+            function (Request $request, Response $response) {
+                $point = HttpTracker::getInstance()->startPoint();
+                $point && $point->setEndArg(HttpTracker::endArgsResponse($response))->end();
             });
     }
 

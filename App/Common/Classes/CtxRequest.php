@@ -22,29 +22,13 @@ class CtxRequest
      */
     protected $request = null;
 
-    /**
-     * 管理员信息
-     * @var array
-     */
-    protected $operInfo = [];
-
     public function setRequest(Request $request)
     {
         $this->request = $request;
     }
 
-    public function getRequest(): Request
+    public function getRequest()
     {
         return $this->request;
-    }
-
-    public function setOperInfo(array $operInfo = [], $isMerge = false)
-    {
-        $this->operInfo = $isMerge ? array_merge_multi($this->operInfo, $operInfo) : $operInfo;
-    }
-
-    public function getOperInfo()
-    {
-        return $this->operInfo;
     }
 }

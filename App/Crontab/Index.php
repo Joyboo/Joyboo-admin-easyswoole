@@ -14,4 +14,6 @@ class Index
     {
         var_dump(date('Y-m-d H:i:s') .' test ok');
     }
+
+    // todo 删N天前的链路追踪日志、删对应分区、增加对应分区
 }

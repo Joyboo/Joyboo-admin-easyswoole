@@ -45,6 +45,6 @@ class Trigger implements TriggerInterface
 
     protected function doError($trigger, $exp)
     {
-        trace($exp, $trigger, $trigger);
+        trace($exp, 'error', $trigger);
     }
 }

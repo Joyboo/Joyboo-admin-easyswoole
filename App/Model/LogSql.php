@@ -42,9 +42,8 @@ class LogSql extends Base
 
     public function sqlWriteLog($sql = '')
     {
-
-        $operinfo = CtxRequest::getInstance()->getOperInfo();
         $Request = CtxRequest::getInstance()->getRequest();
+        $operinfo = $Request->getAttribute('openinfo');
 
         $data = [
             'admid' => $operinfo['id'] ?? 0,

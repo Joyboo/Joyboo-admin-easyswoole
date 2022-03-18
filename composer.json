@@ -13,7 +13,8 @@
         "easyswoole/file-watcher": "^1.0",
         "easyswoole/db-migrate": "^1.0",
         "easyswoole/wechat": "^2.0",
-        "viest/php-ext-xlswriter-ide-helper": "dev-master"
+        "viest/php-ext-xlswriter-ide-helper": "dev-master",
+        "easyswoole/tracker": "^1.1"
     },
     "autoload": {
         "psr-4": {

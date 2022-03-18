@@ -124,8 +124,12 @@ class Tree
                 'hideMenu' => $value['isshow'] != 1,
                 'hideBreadcrumb' => $value['breadcrumb'] != 1
             ];
-            // path以http开头，则认为外部链接, isext=1为外链，=0为frameSrc
-            if (substr($value['path'], 0, 4) === 'http' && $value['isext'] != 1)
+            // 外部链接, isext=1为外链，=0为frameSrc
+            $validate = new \EasySwoole\Validate\Validate();
+            $validate->addColumn('path')->url();
+            $validate->addColumn('isext')->differentWithColumn(1);
+            $isFrame = $validate->validate($value);
+            if ($isFrame)
             {
                 $meta['frameSrc'] = $value['path'];
                 // 当为内嵌时，path已经不需要了，但优先级比frameSrc高，需要覆盖掉path为非url

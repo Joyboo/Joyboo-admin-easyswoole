@@ -32,7 +32,7 @@ class FdManager
             ],
             [
                 'name' => $this->uidFdKey,
-                'columns' => ['fd' => ['type' => Table::TYPE_INT]],
+                'columns' => ['fd' => ['type' => Table::TYPE_INT, 'size' => null]],
             ],
         ];
 
