@@ -2,6 +2,7 @@
 
 namespace App\Common\Classes;
 
+use EasySwoole\ORM\AbstractModel;
 use Vtiful\Kernel\Excel;
 use Vtiful\Kernel\Format;
 
@@ -141,6 +142,52 @@ class XlsWriter
     }
 
     /**
+     * @param string $file
+     * @param array $header ['uid' => '用户id', 'username' => '用户名', 'instime' => '时间']
+     * @param AbstractModel|null $model
+     * @param $chunk
+     * @param callable|null $call
+     * @return void
+     * @throws \EasySwoole\ORM\Exception\Exception
+     * @throws \Throwable
+     */
+    public function ouputFileByOrm(string $file, array $header, AbstractModel $model = null, $chunk = 1000, callable $call = null)
+    {
+        $suffix = '.xlsx';
+        if (substr($file, -5) !== $suffix) {
+            $file .= $suffix;
+        }
+
+        $this->excel->constMemory($file)->header(array_values($header));
+
+        $fileHandle = $this->excel->getHandle();
+        $format = new Format($fileHandle);
+        // 默认加粗，其他样式参考Format
+        $boldStyle = $format->bold()->toResource();
+        $this->excel->setRow('A1', 15, $boldStyle);
+
+        if ($model instanceof AbstractModel)
+        {
+            $model->field(array_keys($header))->chunk(function ($item) use ($header) {
+                /** @var AbstractModel $item */
+                $toArray = $item->toArray();
+                $row = [];
+                foreach ($header as $key => $value)
+                {
+                    // 按header顺序填充
+                    $row[] = $toArray[$key] ?? '';
+                }
+                $this->excel->data([$row]);
+            }, $chunk);
+        }
+        elseif (is_callable($call))
+        {
+            $call($this->excel);
+        }
+        $this->excel->output();
+    }
+
+    /**
      * 导出，固定内存模式
      * @param string $file
      * @param array $header
@@ -175,7 +222,7 @@ class XlsWriter
         // 默认加粗，其他样式参考Format
         $boldStyle = $format->bold()->toResource();
         // 给表头设置样式
-        $fileObject->setRow('A1', 10, $boldStyle)
+        $fileObject->setRow('A1', 15, $boldStyle)
             ->header($thValue)
             ->data($result)
             ->output();
