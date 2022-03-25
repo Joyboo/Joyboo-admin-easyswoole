@@ -20,6 +20,8 @@ class Events
     const CLOSE = 'event_1';
     // 客户端版本更新
     const SYSTEM_VERSION_UPDATE = 'event_2';
+    // 踢下线
+    const KICK = 'event_3';
 
     /**
      * @param Server $server
@@ -42,6 +44,15 @@ class Events
         if ($jwt['status'] != 1 || empty($id))
         {
             return $server->push($request->fd, json_encode(['event' => self::CLOSE, 'message' => 'Auth Fail']));
+        }
+
+        // 单点登录
+        if ($loginFd = $table->getFdByUid($id))
+        {
+            // 踢下线
+            $table->delFdByUid($id);
+            $server->push($loginFd, json_encode(['event' => self::KICK, 'message' => '您的账号已在其他地方登录!']));
+            $table->delUidByFd($loginFd);
         }
 
         $table->setUidFd($id, $request->fd);
