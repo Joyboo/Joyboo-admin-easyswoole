@@ -82,7 +82,9 @@ class AutoRegister extends AbstractCronTask
                 continue;
             }
 
-            $args = json_decode($value['args'], true);
+            if (is_string($value['args'])) {
+                $args = json_decode($value['args'], true);
+            }
 
             $class = new $className([$value['eclass'], $value['method']], is_array($args) ? $args : $value['args']);
             // 投递给异步任务

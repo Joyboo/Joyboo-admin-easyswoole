@@ -8,6 +8,8 @@ use EasySwoole\EasySwoole\Task\TaskManager;
 
 class Sysinfo extends Base
 {
+    const CACHE_KEY = 'Joyboo-sysinfo';
+
     const TYPE_NUMBER = 0;
     const TYPE_STRING = 1;
     const TYPE_ARRAY = 2;
@@ -43,27 +45,46 @@ class Sysinfo extends Base
         return $value;
     }
 
-    public function getSysinfo()
+    /**
+     * @param self $model
+     * @param $res
+     * @return void
+     */
+    protected static function onAfterInsert($model, $res)
     {
-        $all = $this->where('status', 1)->all();
-        $result = [];
-        foreach ($all as $value)
-        {
-            $result[$value->varname] = $value->value;
-        }
-        return $result;
+        $res && $model->delRedisKey(self::CACHE_KEY);
     }
 
-    // todo 更新版本暂时这么做，后面要优化
+    /**
+     * @param self $model
+     * @param $res
+     * @return void
+     */
+    public static function onAfterDelete($model, $res)
+    {
+        $res && $model->delRedisKey(self::CACHE_KEY);
+    }
+
+    /**
+     * @param self $model
+     * @param $res
+     * @return void
+     */
     protected static function onAfterUpdate(Base $model, $res)
     {
-       $varname = $model->getAttr('varname');
-        foreach (['version_force', 'version_later'] as $col)
+        if ($res)
         {
-            if ($varname === $col)
+            $model->delRedisKey(self::CACHE_KEY);
+
+            // todo 更新版本暂时这么做，后面要优化
+            $varname = $model->getAttr('varname');
+            foreach (['version_force', 'version_later'] as $col)
             {
-                $force = $col === 'version_force' ? 1: 0;
-                TaskManager::getInstance()->async(new VersionUpdate(['force' => $force]));
+                if ($varname === $col)
+                {
+                    $force = $col === 'version_force' ? 1: 0;
+                    TaskManager::getInstance()->async(new VersionUpdate(['force' => $force]));
+                }
             }
         }
     }

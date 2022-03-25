@@ -6,6 +6,7 @@ namespace App\Model;
 use EasySwoole\ORM\AbstractModel;
 use EasySwoole\ORM\Db\Result;
 use EasySwoole\Mysqli\QueryBuilder;
+use EasySwoole\RedisPool\RedisPool;
 
 abstract class Base extends AbstractModel
 {
@@ -116,5 +117,15 @@ abstract class Base extends AbstractModel
             $result = new \EasySwoole\ORM\Collection\Collection($result);
         }
         return $toArray ? $result->toArray() : $result;
+    }
+
+    /**
+     * 删除rediskey
+     * @param mixed ...$key
+     */
+    public function delRedisKey(...$key)
+    {
+        $redis = RedisPool::defer();
+        $redis->del($key);
     }
 }
