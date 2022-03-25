@@ -56,8 +56,7 @@ abstract class Auth extends Base
 
     protected function onRequest(?string $action): bool
     {
-        parent::onRequest($action);
-        return $this->checkAuthorization();
+        return parent::onRequest($action) && $this->checkAuthorization();
     }
 
     protected function checkAuthorization()
@@ -439,16 +438,13 @@ abstract class Auth extends Base
             }
         }
 
-        if ($where = $this->_search())
-        {
-            $this->Model->where($where);
-        }
+        $where = $this->_search();
 
         // 处理排序
         $this->_order();
 
         // todo 使用fetch模式
-        $items = $this->Model->all();
+        $items = $this->Model->all($where);
         $data = $this->_afterIndex($items, 0)[config('fetchSetting.listField')];
 
         // 是否需要合并合计行，如需合并，data为索引数组，为空字段需要占位

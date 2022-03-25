@@ -26,7 +26,7 @@ class HttpTracker extends Base
             $startArg = $data['startArg'] ?? [];
             foreach ($startArg as $rqKey => $rkValue)
             {
-                if (!in_array($rqKey, ['ip', 'url', 'server_name', 'repeat']))
+                if (!in_array($rqKey, ['ip', 'url', 'server_name', 'repeated']))
                 {
                     if (is_string($rkValue) && ($rkJson = json_decode($rkValue, true)))
                     {
@@ -57,6 +57,7 @@ class HttpTracker extends Base
                 'depth' => $data['depth'],
                 'repeat' => $data['startArg']['repeat'] ?? 0,
                 'status' => $data['status'],
+                'repeated' => $data['startArg']['repeated'] ?? 0,
                 'ip' => $ip,
                 'url' => $data['startArg']['url'] ?? '',
                 'request' => $request,

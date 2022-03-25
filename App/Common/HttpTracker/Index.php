@@ -2,6 +2,7 @@
 
 namespace App\Common\HttpTracker;
 
+use App\Model\HttpTracker as HttpTrackerModel;
 use EasySwoole\Http\Request;
 use EasySwoole\Http\Response;
 use EasySwoole\Tracker\PointContext;
@@ -15,6 +16,7 @@ class Index extends PointContext
 
     public static function startArgsRequest(Request $request, array $merge = [])
     {
+        $repeated = intval(stripos($request->getHeaderLine('user-agent'), HttpTrackerModel::REPEAT_SYSBOL) !== false);
         $args = array_merge([
             'url' => $request->getUri()->__toString(),
             'ip' => \Linkunyuan\EsUtility\ip($request),
@@ -24,7 +26,8 @@ class Index extends PointContext
             'GET' => $request->getQueryParams(),
             'POST' => $request->getParsedBody() ?: json_decode($request->getBody()->__toString(), true),
             'path' => $request->getUri()->getPath(),
-            'server_name' => 'Joyboo-server'
+            'server_name' => 'Joyboo-server',
+            'repeated' => $repeated,
         ], $merge);
         krsort($args, SORT_STRING);
         return $args;

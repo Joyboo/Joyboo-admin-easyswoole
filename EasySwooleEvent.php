@@ -54,7 +54,7 @@ class EasySwooleEvent implements Event
         // 注册全局onRequest回调
         self::httpGlobalOnRequest();
 
-        // 注册SwooleTable
+        // 注册SwooleTable(WebSocket连接符管理)
         \App\Common\Classes\FdManager::getInstance()->register();
     }
 
@@ -113,7 +113,7 @@ class EasySwooleEvent implements Event
             $rule = new \EasySwoole\FileWatcher\WatchRule(EASYSWOOLE_ROOT . "/App");
             $watcher->addRule($rule);
             $watcher->setOnChange(function () {
-                var_dump('检测到文件变更， worker进程reload ...');
+                var_dump('检测到/App目录文件变更， worker进程reload ...');
                 $Server = ServerManager::getInstance()->getSwooleServer();
 
                 // worker进程reload不会触发客户端的断线重连，但是原来的fd已经不可用了，手动close
@@ -123,8 +123,6 @@ class EasySwooleEvent implements Event
                     $Server->close($fd);
                 }
 
-                // 不sleep会死锁
-                \Swoole\Coroutine::sleep(0.1);
                 $Server->reload();
             });
             $watcher->attachServer(ServerManager::getInstance()->getSwooleServer());
