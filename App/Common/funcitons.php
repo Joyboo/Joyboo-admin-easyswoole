@@ -41,10 +41,11 @@ function is_online_uid($uid)
 /**
  * 获取系统设置的动态配置
  * @document http://www.easyswoole.com/Components/Spl/splArray.html
- * @param string|true $key ''返回全部 或 a.b.c... 取值  或 true返回SplArray对象
+ * @param string|true|null $key true-直接返回SplArray对象，非true取值与 SplArray->get 相同
+ * @param string|null $default 默认值
  * @return array|SplArray|mixed|null
  */
-function sysinfo($key = '') {
+function sysinfo($key = null, $default = null) {
 
     /** @var SplArray $Spl */
     $Spl = RedisPool::invoke(function (Redis $redis) {
@@ -76,5 +77,5 @@ function sysinfo($key = '') {
         return $Spl;
     });
 
-    return $key === true ? $Spl : ($key === '' ? $Spl->getArrayCopy() : $Spl->get($key));
+    return $key === true ? $Spl : $Spl->get($key, $default);
 }
