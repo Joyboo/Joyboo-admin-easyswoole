@@ -170,4 +170,10 @@ abstract class Base extends Controller
         }
         return $result;
     }
+
+    protected function getStaticClassName()
+    {
+        $array = explode('\\', static::class);
+        return end($array);
+    }
 }

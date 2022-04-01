@@ -11,7 +11,7 @@ namespace App\HttpController\Admin;
  */
 class LogError extends Auth
 {
-    protected $_uckAction = 'multiple';
+    protected array $_authOmit = ['multiple'];
 
     protected function _search()
     {

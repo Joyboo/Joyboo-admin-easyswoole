@@ -14,7 +14,8 @@
         "easyswoole/db-migrate": "^1.0",
         "easyswoole/wechat": "^2.0",
         "viest/php-ext-xlswriter-ide-helper": "dev-master",
-        "easyswoole/tracker": "^1.1"
+        "easyswoole/tracker": "^1.1",
+        "easyswoole/policy": "^1.0"
     },
     "autoload": {
         "psr-4": {

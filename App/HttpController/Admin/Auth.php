@@ -8,6 +8,8 @@ use App\Common\Exception\HttpParamException;
 use App\Common\Http\Code;
 use App\Common\Languages\Dictionary;
 use App\Model\Admin;
+use EasySwoole\Policy\Policy;
+use EasySwoole\Policy\PolicyNode;
 use EasySwoole\Utility\MimeType;
 use Linkunyuan\EsUtility\Classes\LamJwt;
 use App\Common\Classes\Extension;
@@ -30,29 +32,18 @@ abstract class Auth extends Base
 
     protected $uploadKey = 'file';
 
-    /**
-     * 别名认证的操作
-     * @var array
-     */
-    protected $_ckAliasAction = ['change' => 'edit', 'export' => 'index'];
+    /////////////////////////////////////////////////////////////////////////
+    /// 权限认证相关属性                                                    ///
+    ///     1. 子类无需担心重写覆盖，校验时会反射获取父类属性值，并做合并操作     ///
+    ///     2. 对于特殊场景也可直接重写 setPolicy 方法操作Policy              ///
+    ///     3. 大小写不敏感                                                 ///
+    /////////////////////////////////////////////////////////////////////////
 
-    /**
-     * 每个继承类可在此定义别名认证的操作
-     * @var array
-     */
-    protected $_ckAction = [];
+    // 别名认证
+    protected array $_authAlias = ['change' => 'edit', 'export' => 'index'];
 
-    /**
-     * 无需认证的操作
-     * 	@var string
-     */
-    protected $_uckSysAction = 'upload,options';
-
-    /**
-     * 每个继承类可在此定义无需认证的操作，格式为 操作1,操作2,....
-     * @var string
-     */
-    protected $_uckAction = '';
+    // 无需认证
+    protected array $_authOmit = [];
 
     protected function onRequest(?string $action): bool
     {
@@ -120,7 +111,7 @@ abstract class Auth extends Base
     }
 
     /**
-     * 权限 todo 可能需要使用Policy重写，文档: http://www.easyswoole.com/Components/policy.html
+     * 权限认证
      * @return bool
      * @throws \EasySwoole\ORM\Exception\Exception
      * @throws \Throwable
@@ -131,77 +122,84 @@ abstract class Auth extends Base
         {
             return true;
         }
-        // /admin/admin/index
-        $fullpath = $this->request()->getUri()->getPath();
 
-        $this->_uckSysAction = trim($this->_uckSysAction, ',');
-        $this->_uckSysAction = ',' . $this->_uckSysAction . ($this->_uckAction ? ",{$this->_uckAction}" : '' ) . ',';
-
-        // 无需认证的操作
-        $arr = explode('/', $fullpath);
-        $method = end($arr);
-        if(stripos($this->_uckSysAction, ",$method,") !== false)
+        $publicMethods = array_map('strtolower', array_keys($this->getAllowMethodReflections()));
+        $currentAction = strtolower($this->getActionName());
+        if (!in_array($currentAction, $publicMethods))
         {
-            return true;
+            $this->error(Code::CODE_FORBIDDEN);
+            return false;
+        }
+        $currentClassName = strtolower($this->getStaticClassName());
+        $fullPath = "/$currentClassName/$currentAction";
+
+        // 设置用户权限
+        $userMenu = $this->getUserMenus();
+        if (empty($userMenu))
+        {
+            $this->error(Code::CODE_FORBIDDEN);
+            return false;
         }
 
         /** @var \App\Model\Menu $Menu */
         $Menu = model('Menu');
-        $priv = $Menu->where("permission<>'' and status=1")->field(['permission', 'id'])->indexBy('permission');
-        $priv && $priv = array_change_key_case($priv);
+        $priv = $Menu->where('id', $userMenu, 'IN')->where('permission', '', '<>')->where('status', 1)->column('permission');
+        if (empty($priv))
+        {
+            return true;
+        }
 
-        // 无独立的权限菜单，但有别名认证的操作
-        $path = strtolower(substr($fullpath, strpos($fullpath, '/', 1)));
-        $arr = explode('\\', static::class);
-        $className = strtolower(end($arr));
+        $policy = new Policy();
+        foreach ($priv as $path)
+        {
+            $policy->addPath('/' . trim(strtolower($path), '/'));
+        }
 
-        $this->_uckAction = trim($this->_uckAction, ',');
-        $this->_ckAliasAction = array_change_key_case(array_merge($this->_ckAliasAction, $this->_ckAction));
-
-        // /index  index  /admin/index  admin/index 补全为统一格式: /admin/index
-        $func = function ($val) use ($className) {
-            $k = trim($val, '/');
-            $count = substr_count($k, '/');
-
-            // /index  index
-            if ($count === 0)
+        // 无需认证操作
+        $selfRef = new \ReflectionClass(self::class);
+        $selfOmitAction = $selfRef->getDefaultProperties()['_authOmit'] ?? [];
+        if ($omitAction = array_map('strtolower', array_merge($selfOmitAction, $this->_authOmit)))
+        {
+            foreach ($omitAction as $omit)
             {
-                return '/' . $className . '/' . $k;
+                in_array($omit, $publicMethods) && $policy->addPath("/$currentClassName/" . $omit);
             }
-            // /admin/index  admin/index
-            elseif ($count === 1)
+        }
+
+        // 别名认证操作
+        if ($this->_authAlias)
+        {
+            $this->_authAlias = array_map('strtolower', $this->_authAlias);
+            if (isset($this->_authAlias[$currentAction]))
             {
-                return '/' . $k;
+                $alias = trim($this->_authAlias[$currentAction], '/');
+                if (strpos($alias, '/') === false)
+                {
+                    if (in_array($alias, $publicMethods))
+                    {
+                        $fullPath = "/$currentClassName/$alias";
+                    }
+                } else {
+                    // 支持引用已有权限
+                    $fullPath = '/' . $alias;
+                }
             }
-            else {
-                throw new \Exception('Error Auth _ckAliasAction: ' . $val);
-            }
-        };
-
-        $alias = [];
-        foreach ($this->_ckAliasAction as $key => $value)
-        {
-            $alias[$func($key)] = $func($value);
         }
 
-        if (empty($priv[$path]) && array_key_exists($path, array_change_key_case($alias)))
-        {
-            $path = strtolower($alias[$path]);
-        }
+        // 自定义认证操作
+        $this->setPolicy($policy);
 
-        if (empty($priv[$path]['id']))
-        {
+        $ok = $policy->check($fullPath) === PolicyNode::EFFECT_ALLOW;
+        if (!$ok) {
             $this->error(Code::CODE_FORBIDDEN);
-            return false;
         }
+        return $ok;
+    }
 
-        if (!in_array($priv[$path]['id'], $this->getUserMenus()))
-        {
-            $this->error(Code::CODE_FORBIDDEN);
-            return false;
-        }
+    // 对于复杂场景允许自定义认证，优先级最高
+    protected function setPolicy(Policy $policy)
+    {
 
-        return true;
     }
 
     protected function isSuper($rid = null)

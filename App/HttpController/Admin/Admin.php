@@ -17,7 +17,7 @@ use Linkunyuan\EsUtility\Classes\LamJwt;
  */
 class Admin extends Auth
 {
-    protected $_uckAction = 'getUserInfo,getPermCode';
+    protected array $_authOmit = ['getUserInfo', 'getPermCode'];
 
     protected function _search()
     {

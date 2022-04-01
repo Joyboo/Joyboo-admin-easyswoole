@@ -14,7 +14,7 @@ use App\Common\Languages\Dictionary;
  */
 class Menu extends Auth
 {
-    protected $_uckAction = 'getMenuList';
+    protected array $_authOmit = ['getMenuList'];
 
     public function index()
     {
