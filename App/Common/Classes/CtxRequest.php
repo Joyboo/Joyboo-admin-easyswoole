@@ -7,6 +7,7 @@ namespace App\Common\Classes;
 use EasySwoole\Component\CoroutineSingleTon;
 use EasySwoole\Http\Request;
 use EasySwoole\Socket\Bean\Caller;
+use Swoole\Coroutine;
 
 /**
  * 协程单例对象
