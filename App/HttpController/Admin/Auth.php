@@ -8,6 +8,7 @@ use App\Common\Exception\HttpParamException;
 use App\Common\Http\Code;
 use App\Common\Languages\Dictionary;
 use App\Model\Admin;
+use EasySwoole\Component\Timer;
 use EasySwoole\Policy\Policy;
 use EasySwoole\Policy\PolicyNode;
 use EasySwoole\Utility\MimeType;
@@ -155,9 +156,13 @@ abstract class Auth extends Base
             $policy->addPath('/' . trim(strtolower($path), '/'));
         }
 
-        // 无需认证操作
+
         $selfRef = new \ReflectionClass(self::class);
-        $selfOmitAction = $selfRef->getDefaultProperties()['_authOmit'] ?? [];
+        $selfDefaultProtected = $selfRef->getDefaultProperties();
+        $selfOmitAction = $selfDefaultProtected['_authOmit'] ?? [];
+        $selfAliasAction = $selfDefaultProtected['_authAlias'] ?? [];
+
+        // 无需认证操作
         if ($omitAction = array_map('strtolower', array_merge($selfOmitAction, $this->_authOmit)))
         {
             foreach ($omitAction as $omit)
@@ -167,22 +172,19 @@ abstract class Auth extends Base
         }
 
         // 别名认证操作
-        if ($this->_authAlias)
+        $aliasAction = array_change_key_case(array_map('strtolower', array_merge($selfAliasAction, $this->_authAlias)));
+        if ($aliasAction && isset($aliasAction[$currentAction]))
         {
-            $this->_authAlias = array_map('strtolower', $this->_authAlias);
-            if (isset($this->_authAlias[$currentAction]))
+            $alias = trim($aliasAction[$currentAction], '/');
+            if (strpos($alias, '/') === false)
             {
-                $alias = trim($this->_authAlias[$currentAction], '/');
-                if (strpos($alias, '/') === false)
+                if (in_array($alias, $publicMethods))
                 {
-                    if (in_array($alias, $publicMethods))
-                    {
-                        $fullPath = "/$currentClassName/$alias";
-                    }
-                } else {
-                    // 支持引用已有权限
-                    $fullPath = '/' . $alias;
+                    $fullPath = "/$currentClassName/$alias";
                 }
+            } else {
+                // 支持引用已有权限
+                $fullPath = '/' . $alias;
             }
         }
 
@@ -469,7 +471,10 @@ abstract class Auth extends Base
         $this->response()->withHeader('Cache-Control', 'max-age=0');
         $this->response()->end();
 
-        // todo 下载完成就没有用了，延时删除掉
+        // 下载完成就没有用了，延时删除掉，异步非阻塞
+        Timer::getInstance()->after(1000, function () use ($fullFilePath) {
+            @unlink($fullFilePath);
+        });
     }
 
     public function upload()
