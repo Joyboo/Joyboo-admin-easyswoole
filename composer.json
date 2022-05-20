@@ -9,13 +9,13 @@
         "easyswoole/o-auth": "^1.0",
         "easyswoole/i18n": "^1.0",
         "easyswoole/swoole-ide-helper": "^1.3",
-        "linkunyuan/es-utility": "^1.0",
         "easyswoole/file-watcher": "^1.0",
         "easyswoole/db-migrate": "^1.0",
         "easyswoole/wechat": "^2.0",
         "viest/php-ext-xlswriter-ide-helper": "dev-master",
         "easyswoole/tracker": "^1.1",
-        "easyswoole/policy": "^1.0"
+        "easyswoole/policy": "^1.0",
+        "wonder-game/es-utility": "2.1.*"
     },
     "autoload": {
         "psr-4": {
@@ -24,7 +24,7 @@
         },
         "files": [
             "App/Common/funcitons.php",
-            "vendor/linkunyuan/es-utility/src/helper.php"
+            "vendor/wonder-game/es-utility/src/function.php"
         ]
     }
 }

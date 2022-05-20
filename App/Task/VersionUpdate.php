@@ -10,10 +10,8 @@ class VersionUpdate extends Base
 {
     public function run(int $taskId, int $workerIndex)
     {
-        parent::run($taskId, $workerIndex);
-
         $this->toAllAdmin([
-            'event' => Events::SYSTEM_VERSION_UPDATE,
+            'event' => Events::EVENT_2,
             'data' => ['force' => $this->data['force']]
         ]);
     }

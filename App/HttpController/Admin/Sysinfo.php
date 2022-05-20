@@ -4,9 +4,9 @@
 namespace App\HttpController\Admin;
 
 
-use App\Common\Exception\HttpParamException;
-use App\Common\Http\Code;
-use App\Common\Languages\Dictionary;
+use App\Common\Classes\FdManager;
+use Swoole\Table;
+use WonderGame\EsUtility\HttpController\Admin\SysinfoTrait;
 
 /**
  * Class Sysinfo
@@ -15,46 +15,30 @@ use App\Common\Languages\Dictionary;
  */
 class Sysinfo extends Auth
 {
-    protected function _search()
+    protected array $_authAlias = ['showSwooleTable' => 'index'];
+
+    use SysinfoTrait;
+
+    public function showSwooleTable()
     {
-        $where = [];
-        if (isset($this->get['status']) && $this->get['status'] !== '')
+        $Fdmanager = FdManager::getInstance();
+        $tables = $Fdmanager->getTableAll();
+        $array = [];
+        /** @var Table $table */
+        foreach ($tables as $tbname => $table)
         {
-            $where['status'] = $this->get['status'];
-        }
-        foreach (['varname', 'remark'] as $col)
-        {
-            if (!empty($this->get[$col]))
+            $tmp = [
+                'TableName' => $tbname,
+                'Size' => $table->getSize(),
+                'MemorySize' => memory_convert($table->getMemorySize()),
+                'Count' => $table->count(),
+            ];
+            foreach ($table as $key => $row)
             {
-                $where[$col] = ["%{$this->get[$col]}%", 'like'];
+                $tmp['Rows'][$key] = $row;
             }
+            $array[] = $tmp;
         }
-        return $where;
+        $this->success($array);
     }
-
-    protected function _writeBefore()
-    {
-        $post = $this->post;
-        if (empty($post['varname']) || empty($post['value']) || !isset($post['type']))
-        {
-            return $this->error(Code::ERROR);
-        }
-    }
-
-    /*protected function _afterIndex($items)
-    {
-        foreach ($items as &$value)
-        {
-            $value = $value->toArray();
-
-            if ($value['type'] == $this->Model::TYPE_ARRAY)
-            {
-                $return = $this->Model->toArraybyEval($value['value'], true);
-                if ($return !== false) {
-                    $value['value'] = $return;
-                }
-            }
-        }
-        return $items;
-    }*/
 }

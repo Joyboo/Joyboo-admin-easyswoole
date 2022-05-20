@@ -3,9 +3,9 @@
 
 namespace App\Common\Http;
 
-use EasySwoole\Http\Message\Status;
+use WonderGame\EsUtility\Common\Http\Code as BaseCode;
 
-class Code extends Status
+class Code extends BaseCode
 {
     const SUCCESS = 200;
     const ERROR = 1001;

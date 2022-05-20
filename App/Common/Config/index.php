@@ -24,7 +24,7 @@ return [
     "LOG" => [
         'dir' => EASYSWOOLE_ROOT . '/../logs',
         'level' => LoggerInterface::LOG_LEVEL_DEBUG,
-        'handler' => new \App\Common\Handler\Log(),
+        'handler' => new \WonderGame\EsUtility\Common\Classes\LamLog(),
         'logConsole' => true,
         'displayConsole' => true,
         'ignoreCategory' => [],
@@ -50,10 +50,10 @@ return [
     ],
     'REDIS' => [
         'default' => [
-            'host'          => get_cfg_var('env.hk_redishost'),
-            'port'          => get_cfg_var('env.hk_redisport'),
-            'auth'          => get_cfg_var('env.hk_redispwd'),
-            'db'            => get_cfg_var('env.hk_redisdb')
+            'host'          => '127.0.0.1',
+            'port'          => 6379,
+            'auth'          => '',
+            'db'            => 4
         ]
         // ... other
     ],
@@ -62,15 +62,10 @@ return [
     'auth' => [
         'jwtkey' => get_cfg_var('env.ES_hk-api_encrypt'),
         'expire' => 86400 * 2, // token有效期
-        'refresh' => 86400  // token有效期小于此值会自动续期
+        'refresh' => 86400,  // token有效期小于此值会自动续期
+        'refresh_task' => App\Task\RefreshToken::class
     ],
 
-    // 超级管理员id
-    'SUPER_ROLE' => [1],
-
-    'SERVER_EXTRA' => [
-        'operinfo' => 'auth_operinfo',
-    ],
     // 不记录SQL的日志
     'NOT_WRITE_SQL' => [
         // 正则匹配规则
@@ -78,6 +73,9 @@ return [
         // 表名
         'table' => ['log_login', 'log_error', 'log_sql', 'http_tracker'],
     ],
+
+    // 超级管理员组id
+    'SUPER_ROLE' => [1],
 
     // 与客户端交互的字段名
     'fetchSetting' => [
@@ -97,4 +95,16 @@ return [
         'exprotFilename'=> '_fname',
     ],
     'TOKEN_KEY' => 'authorization',
+
+    'LANGUAGES' => [
+        'Cn' => [
+            'class' => \App\Common\Languages\Chinese::class,
+            'match' => '/^(zh-hans|zh-cn|cn|zh)/i', // 正则或callback
+            'default' => true,
+        ],
+        'En' => [
+            'class' => \App\Common\Languages\English::class,
+            'match' => '/.*/i'
+        ],
+    ],
 ];

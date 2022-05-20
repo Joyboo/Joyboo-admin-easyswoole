@@ -3,9 +3,10 @@
 
 namespace App\Common\Classes;
 
-use EasySwoole\Component\TableManager;
 use EasySwoole\Component\Singleton;
+use EasySwoole\EasySwoole\ServerManager;
 use Swoole\Table;
+use EasySwoole\Component\TableManager;
 
 /**
  * uid与fd，SwooleTable存储
@@ -20,26 +21,45 @@ class FdManager
 
     protected $fdUidKey = 'tb-fd-uid';
 
+
+    protected $fdColumnSize = 300;
+
+    protected $fdColumnName = 'fds';
+
     /**
      * @param int $size SwooleTable行数，即支持的同时在线最大连接数
      */
     public function register($size = 2048)
     {
-        $config = [
+        // 以fd为key
+        TableManager::getInstance()->add(
+            $this->fdUidKey,
             [
-                'name' => $this->fdUidKey,
-                'columns' => ['uid' => ['type' => Table::TYPE_STRING, 'size' => 128]],
+                'uid' => ['type' => Table::TYPE_INT, 'size' => null],
+                'token' => ['type' => Table::TYPE_STRING, 'size' => 1000],
             ],
-            [
-                'name' => $this->uidFdKey,
-                'columns' => ['fd' => ['type' => Table::TYPE_INT, 'size' => null]],
-            ],
-        ];
+            $size * 2 // 此表行数应该是下面表的N倍（平均每个用户单开就是1倍，平均每个用户双开就是2倍）
+        );
 
-        foreach ($config as $value)
+        // 以uid为key
+        TableManager::getInstance()->add(
+            $this->uidFdKey,
+            [
+                $this->fdColumnName => ['type' => Table::TYPE_STRING, 'size' => $this->fdColumnSize]
+            ],
+            $size
+        );
+    }
+
+    // 返回所有table用于外部遍历
+    public function getTableAll()
+    {
+        $tables = [];
+        foreach ([$this->fdUidKey, $this->uidFdKey] as $tbname)
         {
-            TableManager::getInstance()->add($value['name'], $value['columns'], $value['size'] ?? $size);
+            $tables[$tbname] = $this->getTable($tbname);
         }
+        return $tables;
     }
 
     public function getTable($name)
@@ -47,43 +67,155 @@ class FdManager
         return TableManager::getInstance()->get($name);
     }
 
-    public function setUidFd($uid, $fd)
+    /**
+     * 为减小hash冲突率，加key前缀
+     * @param string $tableName
+     * @param $key
+     * @return string
+     */
+    public function getRowKey(string $tableName, $key)
     {
-        $uid = strval($uid);
-        $this->getTable($this->uidFdKey)->set($uid, ['fd' => $fd]);
+        return $tableName . '-' . $key;
     }
 
-    public function setFdUid($fd, $uid)
+    /************************** 多个fd存储在一个table内 ****************************/
+    public function fmtFds(array $fdArray): string
     {
-        $fd = strval($fd);
-        $this->getTable($this->fdUidKey)->set($fd, ['uid' => $uid]);
+        $str = implode(',', $fdArray);
+        $size = strlen($str);
+
+        if ($size > $this->fdColumnSize) {
+            // todo 处理超过 fdColumnSize 长度的场景，否则会被截取，会导致程序异常
+        }
+
+        return $str;
     }
 
-    public function getFdByUid($uid)
+    public function unfmtFds(string $fdString): array
     {
-        $uid = strval($uid);
+        return explode(',', $fdString);
+    }
+
+    /**
+     * @param $uid
+     * @param $fd
+     * @return array
+     */
+    public function setRowFd($uid, $fd)
+    {
+        $rowKey = $this->getRowKey($this->uidFdKey, $uid);
         $table = $this->getTable($this->uidFdKey);
-        return $table && $table->exist($uid) ? $table->get($uid, 'fd') : false;
+        $row = $table->get($rowKey, $this->fdColumnName);
+
+        $array = [];
+        if ($row !== false) {
+            $fdArray = $this->unfmtFds($row);
+            foreach ($fdArray as $val) {
+                if ($this->fdExist($val)) {
+                    $array[] = $val;
+                }
+            }
+        }
+        $array[] = $fd;
+        $table->set($rowKey, [$this->fdColumnName => $this->fmtFds($array)]);
     }
 
-    public function delFdByUid($uid)
+    /**
+     * 删除uid的某一个连接
+     * @return void
+     */
+    public function delRowFd($uid, $fd)
     {
-        $uid = strval($uid);
+        $rowKey = $this->getRowKey($this->uidFdKey, $uid);
         $table = $this->getTable($this->uidFdKey);
-        return $table && $table->exist($uid) ? $table->del($uid) : false;
+
+        if ($table->exist($rowKey)) {
+            $row = $table->get($rowKey, $this->fdColumnName);
+            $fdArray = $this->unfmtFds($row);
+
+            $array = [];
+            foreach ($fdArray as $val) {
+                if ($val != $fd && $this->fdExist($val)) {
+                    $array[] = $val;
+                }
+            }
+
+            if (empty($array)) {
+                $table->del($rowKey);
+            } else {
+                $table->set($rowKey, [$this->fdColumnName => $this->fmtFds($array)]);
+            }
+        }
     }
 
-    public function getUidByFd($fd)
+    public function setRowUid($fd, $uid, $token)
     {
-        $fd = strval($fd);
-        $table = $this->getTable($this->fdUidKey);
-        return $table && $table->exist($fd) ? $table->get($fd, 'uid') : false;
+        $rowKey = $this->getRowKey($this->fdUidKey, $fd);
+        $this->getTable($this->fdUidKey)->set($rowKey, ['uid' => $uid, 'token' => $token]);
     }
 
-    public function delUidByFd($fd)
+    public function delRowUid($fd)
     {
-        $fd = strval($fd);
+        $rowKey = $this->getRowKey($this->fdUidKey, $fd);
         $table = $this->getTable($this->fdUidKey);
-        return $table && $table->exist($fd) ? $table->del($fd) : false;
+        return $table->del($rowKey);
+    }
+
+    public function getUidByFd($fd, string $field = null)
+    {
+        $rowKey = $this->getRowKey($this->fdUidKey, $fd);
+        $table = $this->getTable($this->fdUidKey);
+        return $table->get($rowKey, $field);
+    }
+
+    /**
+     * 为uid内的所有链接执行function
+     * @param $uid
+     * @param callable $call function ($fd) {}
+     * @return false|void
+     */
+    public function uidForeach($uid, callable $call)
+    {
+        $rowKey = $this->getRowKey($this->uidFdKey, $uid);
+        $table = $this->getTable($this->uidFdKey);
+        if ( ! $table->exist($rowKey)) {
+            return false;
+        }
+        $Server = ServerManager::getInstance()->getSwooleServer();
+        $row = $this->unfmtFds($table->get($rowKey, $this->fdColumnName));
+
+        foreach ($row as $colKey => $fd) {
+            if ($Server->isEstablished($fd)) {
+                $call($fd);
+            }
+        }
+    }
+
+    /**
+     * 玩家在线连接数
+     * @param $uid
+     * @return int
+     */
+    public function onlineNum($uid)
+    {
+        $sum = 0;
+        $table = $this->getTable($this->uidFdKey);
+        $rowKey = $this->getRowKey($this->uidFdKey, $uid);
+        if ($table->exist($rowKey)) {
+            $row = $table->get($rowKey, $this->fdColumnName);
+            $fdArray = $this->unfmtFds($row);
+            $sum = count($fdArray);
+        }
+        return $sum;
+    }
+
+    /**
+     * @param $fd
+     * @return bool|mixed
+     */
+    public function fdExist($fd)
+    {
+        $fdTable = $this->getTable($this->fdUidKey);
+        return $fdTable->exist($this->getRowKey($this->fdUidKey, $fd));
     }
 }

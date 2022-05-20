@@ -3,11 +3,6 @@
 namespace App\Websocket;
 
 use App\Common\Classes\FdManager;
-use App\Common\Classes\WsEvent;
-use App\Model\ChatTopic;
-use App\Model\Game;
-use App\Model\Package;
-use Linkunyuan\EsUtility\Classes\LamJwt;
 use Swoole\WebSocket\Server;
 
 /**
@@ -16,12 +11,20 @@ use Swoole\WebSocket\Server;
  */
 class Events
 {
-    // 关闭客户端
-    const CLOSE = 'event_1';
-    // 客户端版本更新
-    const SYSTEM_VERSION_UPDATE = 'event_2';
-    // 踢下线
-    const KICK = 'event_3';
+    // 心跳
+    const EVENT_0 = 'EVENT_0';
+    // 通知客户端关闭连接
+    const EVENT_1 = 'EVENT_1';
+    // 更新版本
+    const EVENT_2 = 'EVENT_2';
+    // 设备过多
+//    const EVENT_3 = 'EVENT_3';
+    // 认证失败
+    const EVENT_4 = 'EVENT_4';
+    // 续期token
+    const EVENT_5 = 'EVENT_5';
+    // 给用户推送消息
+    const EVENT_6 = 'EVENT_6';
 
     /**
      * @param Server $server
@@ -29,34 +32,16 @@ class Events
      */
     public static function onOpen(Server $server, \Swoole\Http\Request $request)
     {
-        $tokenKey = config('TOKEN_KEY');
-        $table = FdManager::getInstance();
+        echo '开始链接 Open fd=' . $request->fd . PHP_EOL;
+        // fd真实的字段是在auth的时候才设置的
+        // 从open到auth是有时间差的，无论该时间有多短，为避免期间检测到fd不存在被干掉，先占一个坑
+        $FdManager = FdManager::getInstance();
+        $FdManager->setRowUid($request->fd, -1, '');
 
-        $token = $request->get[$tokenKey];
-
-        if (empty($tokenKey))
-        {
-            return $server->push($request->fd, json_encode(['event' => self::CLOSE, 'message' => 'Token Empty.']));
-        }
-        // jwt验证
-        $jwt = LamJwt::verifyToken($token, config('auth.jwtkey'));
-        $id = $jwt['data']['id'] ?? '';
-        if ($jwt['status'] != 1 || empty($id))
-        {
-            return $server->push($request->fd, json_encode(['event' => self::CLOSE, 'message' => 'Auth Fail']));
-        }
-
-        // 单点登录
-        if ($loginFd = $table->getFdByUid($id))
-        {
-            // 踢下线
-            $table->delFdByUid($id);
-            $server->push($loginFd, json_encode(['event' => self::KICK, 'message' => '您的账号已在其他地方登录!']));
-            $table->delUidByFd($loginFd);
-        }
-
-        $table->setUidFd($id, $request->fd);
-        $table->setFdUid($request->fd, $id);
+//        Timer::getInstance()->after(60 * 1000, function () use ($FdManager, $request) {
+//            $token = $FdManager->getUidByFd($request->fd, 'token');
+//            // 校验token
+//        });
     }
 
     /**
@@ -69,15 +54,20 @@ class Events
     public static function onClose(\Swoole\Server $server, int $fd, int $reactorId)
     {
         $info = $server->connection_info($fd);
+//        var_dump($info, '===========debug onClose info');
         if ($info['websocket_status'] === 3)
         {
-            echo "[websocket] client-{$fd} is closed \n";
+            echo "[websocket] client-{$fd} is closed " . PHP_EOL;
             $table = FdManager::getInstance();
-            $uid = $table->getUidByFd($fd);
-            $table->delUidByFd($fd);
-            $uid && $table->delFdByUid($uid);
+            $uid = $table->getUidByFd($fd, 'uid');
+            $table->delRowUid($fd);
+            if ($uid) {
+                $table->delRowFd($uid, $fd);
+            } else {
+                trace('没有找到关联fd的uid：fd=' . var_export($fd, true) . ',uid=' . var_export($uid, true));
+            }
         } else {
-            echo "[http] client-{$fd} is closed \n";
+            echo "[http] client-{$fd} is closed " . PHP_EOL;
         }
     }
 

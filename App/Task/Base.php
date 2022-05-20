@@ -13,16 +13,6 @@ abstract class Base implements TaskInterface
 {
     protected $data;
 
-    /**
-     * @var \Swoole\Http\Server|\Swoole\Server|\Swoole\Server\Port|\Swoole\WebSocket\Server|null
-     */
-    protected $Server = null;
-
-    /**
-     * @var Redis|null
-     */
-    protected $Redis = null;
-
     public function __construct($data)
     {
         // 保存投递过来的数据
@@ -31,14 +21,11 @@ abstract class Base implements TaskInterface
 
     public function run(int $taskId, int $workerIndex)
     {
-        // 放在__construct里会报错，子类如果需要使用Redis或Server,请parent::run()
-        $this->Redis = defer_redis();
-        $this->Server = ServerManager::getInstance()->getSwooleServer();
     }
 
     public function onException(\Throwable $throwable, int $taskId, int $workerIndex)
     {
-        // 异常处理
+        trace($throwable->__toString(), 'error');
     }
 
     /**
@@ -49,19 +36,15 @@ abstract class Base implements TaskInterface
      */
     protected function pushByUid($uid, $data)
     {
+        $Server = ServerManager::getInstance()->getSwooleServer();
         $table = FdManager::getInstance();
-        $fd = $table->getFdByUid($uid);
-        if (!$fd) {
-            return false;
-        }
-        if (!$this->Server->isEstablished($fd))
-        {
-            return false;
-        }
-        if (is_array($data)) {
-            $data = json_encode($data);
-        }
-        return $this->Server->push($fd, $data);
+        $table->uidForeach($uid, function ($fd) use ($data, $Server) {
+
+            if (is_array($data)) {
+                $data = json_encode($data);
+            }
+            $Server->push($fd, $data);
+        });
     }
 
     /**
