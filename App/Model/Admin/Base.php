@@ -1,7 +1,6 @@
 <?php
 
-
-namespace App\Model;
+namespace App\Model\Admin;
 
 use EasySwoole\ORM\AbstractModel;
 use WonderGame\EsUtility\Model\BaseModelTrait;

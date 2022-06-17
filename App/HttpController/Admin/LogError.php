@@ -8,7 +8,7 @@ use WonderGame\EsUtility\HttpController\Admin\LogErrorTrait;
 /**
  * 错误日志
  * Class LogError
- * @property \App\Model\LogError $Model
+ * @property \App\Model\Admin\LogError $Model
  * @package App\HttpController\Admin
  */
 class LogError extends Auth

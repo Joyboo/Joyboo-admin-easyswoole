@@ -13,8 +13,8 @@ class Pub extends TestCase
      */
     public function testUserLogin()
     {
-        /** @var \App\Model\Admin $model */
-        $model = model('Admin');
+        /** @var \App\Model\Admin\Admin $model */
+        $model = model_admin('Admin');
 
         $SwRequest = new \Swoole\Http\Request();
         $SwRequest->header['x-real-ip'] = ['127.0.0.1'];

@@ -68,8 +68,8 @@ class HttpTracker extends Base
                 'runtime' => $runtime
             ];
 
-            /** @var \App\Model\HttpTracker $model */
-            $model = model('HttpTracker');
+            /** @var \App\Model\Admin\HttpTracker $model */
+            $model = model_admin('HttpTracker');
             $model->data($insert)->save();
         }
         catch (\Throwable | \Exception $e)

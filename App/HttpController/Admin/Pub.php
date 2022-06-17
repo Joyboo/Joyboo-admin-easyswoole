@@ -7,7 +7,7 @@ use WonderGame\EsUtility\HttpController\Admin\PubTrait;
 
 /**
  * Class Pub
- * @property \App\Model\Admin $Model
+ * @property \App\Model\Admin\Admin $Model
  * @package App\HttpController\Admin
  */
 class Pub extends Base

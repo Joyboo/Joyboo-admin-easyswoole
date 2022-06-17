@@ -10,7 +10,7 @@ use WonderGame\EsUtility\HttpController\Admin\SysinfoTrait;
 
 /**
  * Class Sysinfo
- * @property \App\Model\Sysinfo $Model
+ * @property \App\Model\Admin\Sysinfo $Model
  * @package App\HttpController\Admin
  */
 class Sysinfo extends Auth

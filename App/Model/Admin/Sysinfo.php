@@ -1,11 +1,8 @@
 <?php
 
-namespace App\Model;
+namespace App\Model\Admin;
 
-use App\Task\VersionUpdate;
-use EasySwoole\EasySwoole\Task\TaskManager;
-use WonderGame\EsUtility\Model\SysinfoModelTrait;
-
+use WonderGame\EsUtility\Model\Admin\SysinfoModelTrait;
 
 class Sysinfo extends Base
 {

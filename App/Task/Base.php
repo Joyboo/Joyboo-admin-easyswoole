@@ -4,9 +4,8 @@
 namespace App\Task;
 
 use App\Common\Classes\FdManager;
-use App\Model\Admin;
+use App\Model\Admin\Admin;
 use EasySwoole\EasySwoole\ServerManager;
-use EasySwoole\Redis\Redis;
 use EasySwoole\Task\AbstractInterface\TaskInterface;
 
 abstract class Base implements TaskInterface
@@ -48,7 +47,7 @@ abstract class Base implements TaskInterface
     }
 
     /**
-     * 遍历管理员并推送消息
+     * 遍历管理员并推送消息, (todo 遍历SwooleTable再对照Admin表是否更好)
      * @param array $where
      * @throws \EasySwoole\ORM\Exception\Exception
      * @throws \Throwable
@@ -60,7 +59,7 @@ abstract class Base implements TaskInterface
             $where = ['status' => 1];
         }
         /** @var Admin $AdminModel */
-        $AdminModel = model('Admin');
+        $AdminModel = model_admin('Admin');
         $admins = $AdminModel->where($where)->all();
 
         /** @var Admin $admin */

@@ -7,7 +7,7 @@ use WonderGame\EsUtility\HttpController\Admin\MenuTrait;
 
 /**
  * Class Menu
- * @property \App\Model\Menu $Model
+ * @property \App\Model\Admin\Menu $Model
  * @package App\HttpController\Admin
  */
 class Menu extends Auth

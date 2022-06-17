@@ -9,7 +9,7 @@ use WonderGame\EsUtility\HttpController\Admin\AdminTrait;
 
 /**
  * Class Admin
- * @property \App\Model\Admin $Model
+ * @property \App\Model\Admin\Admin $Model
  * @package App\HttpController\Admin
  */
 class Admin extends Auth
@@ -37,8 +37,8 @@ class Admin extends Auth
 
     protected function __after_index($items, $total)
     {
-        /** @var \App\Model\Role $Role */
-        $Role = model('Role');
+        /** @var \App\Model\Admin\Role $Role */
+        $Role = model_admin('Role');
         $roleList = $Role->getRoleListAll();
         $FdManager = FdManager::getInstance();
         foreach ($items as &$value)

@@ -7,14 +7,14 @@ use PHPUnit\Framework\TestCase;
 
 class Menu extends TestCase
 {
-    /** @var \App\Model\Menu  */
+    /** @var \App\Model\Admin\Menu  */
     protected $Model;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->Model = model('Menu');
+        $this->Model = model_admin('Menu');
     }
 
     /**

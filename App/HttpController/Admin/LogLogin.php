@@ -3,7 +3,7 @@
 
 namespace App\HttpController\Admin;
 
-use App\Model\LogLogin as AdminLogModel;
+use App\Model\Admin\LogLogin as AdminLogModel;
 use WonderGame\EsUtility\HttpController\Admin\LogSqlTrait;
 
 /**

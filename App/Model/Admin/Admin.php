@@ -1,9 +1,9 @@
 <?php
 
 
-namespace App\Model;
+namespace App\Model\Admin;
 
-use WonderGame\EsUtility\Model\AdminModelTrait;
+use WonderGame\EsUtility\Model\Admin\AdminModelTrait;
 
 class Admin extends Base
 {
@@ -12,8 +12,8 @@ class Admin extends Base
     public function signInLog($data = [])
     {
         go(function () use ($data) {
-            /** @var \App\Model\LogLogin $model */
-            $model = model('LogLogin');
+            /** @var \App\Model\Admin\LogLogin $model */
+            $model = model_admin('LogLogin');
             $model->data($data)->save();
         });
     }

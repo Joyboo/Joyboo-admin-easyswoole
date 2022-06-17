@@ -3,7 +3,7 @@
 
 namespace App\Crontab;
 
-use App\Model\HttpTracker;
+use App\Model\Admin\HttpTracker;
 
 /**
  * 这是一个简单示例，在后台管理中添加Crontab即可运行！
@@ -36,7 +36,7 @@ class Index
         $begintime = strtotime("-{$days} days");
 
         /** @var HttpTracker $model */
-        $model = model('HttpTracker');
+        $model = model_admin('HttpTracker');
         $model->where('instime', $begintime, '<=')->destroy();
     }
 }

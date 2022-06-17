@@ -2,7 +2,7 @@
 
 namespace App\Task;
 
-use \App\Model\HttpTracker as HttpTrackerModel;
+use App\Model\Admin\HttpTracker as HttpTrackerModel;
 
 class HttpTracker extends Base
 {
@@ -14,7 +14,7 @@ class HttpTracker extends Base
         $chunk = $this->data['chunk'] ?? 300;
 
         /** @var HttpTrackerModel $model */
-        $model = model('HttpTracker');
+        $model = model_admin('HttpTracker');
 
         $model->where($where)->chunk(
             function ($item) {

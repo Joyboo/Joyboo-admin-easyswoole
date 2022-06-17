@@ -13,13 +13,8 @@ class EasySwooleEvent implements Event
     public static function initialize()
     {
         $EventInitialize = new EventInitialize([
-            'mysqlOnQueryFunc' => [
-                '_save_sql' => function ($sql) {
-                    /** @var \App\Model\LogSql $Log */
-                    $Log = model('LogSql');
-                    $Log->sqlWriteLog($sql);
-                },
-            ]
+            'httpTracker' => 'Joyboo-admin',
+            'httpTrackerConfig' => ['redis-name' => 'default']
         ]);
         $EventInitialize->run();
 
@@ -29,7 +24,10 @@ class EasySwooleEvent implements Event
 
     public static function mainServerCreate(EventRegister $register)
     {
-        $consumers = include EASYSWOOLE_ROOT . '/App/CustomProcess/config.php';
+        $consumers = [];
+        if (is_file($file = EASYSWOOLE_ROOT . '/App/CustomProcess/config.php')) {
+            $consumers = include $file;
+        }
         $EventMainServerCreate = new EventMainServerCreate([
             'EventRegister' => $register,
             'webSocketEvents' => [
