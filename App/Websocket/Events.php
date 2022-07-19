@@ -25,6 +25,10 @@ class Events
     const EVENT_5 = 'EVENT_5';
     // 给用户推送消息
     const EVENT_6 = 'EVENT_6';
+    // 更新某些数据
+    const EVENT_7 = 'EVENT_7';
+    // 重新登录
+    const EVENT_8 = 'EVENT_8';
 
     /**
      * @param Server $server
@@ -80,7 +84,7 @@ class Events
      * @param int $signal 进程退出的信号
      * @doc https://wiki.swoole.com/wiki/page/166.html
      */
-    public static function onError(\Swoole\Server $serv, int $worker_id, int $worker_pid, int $exit_code, int $signal)
+    public static function onWorkerError(\Swoole\Server $serv, int $worker_id, int $worker_pid, int $exit_code, int $signal)
     {
         trace("WebSocket onError: worker_id={$worker_id} worker_pid={$worker_pid} exit_code={$exit_code} signal={$signal}", 'error');
     }

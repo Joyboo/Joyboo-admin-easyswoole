@@ -5,8 +5,8 @@ namespace App\Task;
 
 use App\Common\Classes\FdManager;
 use App\Model\Admin\Admin;
-use EasySwoole\EasySwoole\ServerManager;
 use EasySwoole\Task\AbstractInterface\TaskInterface;
+use Swoole\WebSocket\Server as WebSocketServer;
 
 abstract class Base implements TaskInterface
 {
@@ -35,9 +35,8 @@ abstract class Base implements TaskInterface
      */
     protected function pushByUid($uid, $data)
     {
-        $Server = ServerManager::getInstance()->getSwooleServer();
         $table = FdManager::getInstance();
-        $table->uidForeach($uid, function ($fd) use ($data, $Server) {
+        $table->uidForeach($uid, function ($fd, WebSocketServer $Server) use ($data) {
 
             if (is_array($data)) {
                 $data = json_encode($data);
@@ -46,8 +45,20 @@ abstract class Base implements TaskInterface
         });
     }
 
+    // 推送给在线的所有链接
+    protected function pushAll($data = [])
+    {
+        $table = FdManager::getInstance();
+        $table->allForeach(function ($fd, WebSocketServer $Server) use ($data) {
+            if (is_array($data)) {
+                $data = json_encode($data);
+            }
+            $Server->push($fd, $data);
+        });
+    }
+
     /**
-     * 遍历管理员并推送消息, (todo 遍历SwooleTable再对照Admin表是否更好)
+     * 遍历管理员并推送消息
      * @param array $where
      * @throws \EasySwoole\ORM\Exception\Exception
      * @throws \Throwable

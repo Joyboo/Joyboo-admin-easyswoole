@@ -17,10 +17,9 @@ class FdManager
 {
     use Singleton;
 
-    protected $uidFdKey = 'tb-uid-fd';
+    const UID_FD_KEY = 'tb-uid-fd';
 
-    protected $fdUidKey = 'tb-fd-uid';
-
+    const FD_UID_KEY = 'tb-fd-uid';
 
     protected $fdColumnSize = 300;
 
@@ -33,7 +32,7 @@ class FdManager
     {
         // 以fd为key
         TableManager::getInstance()->add(
-            $this->fdUidKey,
+            self::FD_UID_KEY,
             [
                 'uid' => ['type' => Table::TYPE_INT, 'size' => null],
                 'token' => ['type' => Table::TYPE_STRING, 'size' => 1000],
@@ -43,7 +42,7 @@ class FdManager
 
         // 以uid为key
         TableManager::getInstance()->add(
-            $this->uidFdKey,
+            self::UID_FD_KEY,
             [
                 $this->fdColumnName => ['type' => Table::TYPE_STRING, 'size' => $this->fdColumnSize]
             ],
@@ -55,7 +54,7 @@ class FdManager
     public function getTableAll()
     {
         $tables = [];
-        foreach ([$this->fdUidKey, $this->uidFdKey] as $tbname)
+        foreach ([self::FD_UID_KEY, self::UID_FD_KEY] as $tbname)
         {
             $tables[$tbname] = $this->getTable($tbname);
         }
@@ -103,8 +102,8 @@ class FdManager
      */
     public function setRowFd($uid, $fd)
     {
-        $rowKey = $this->getRowKey($this->uidFdKey, $uid);
-        $table = $this->getTable($this->uidFdKey);
+        $rowKey = $this->getRowKey(self::UID_FD_KEY, $uid);
+        $table = $this->getTable(self::UID_FD_KEY);
         $row = $table->get($rowKey, $this->fdColumnName);
 
         $array = [];
@@ -126,8 +125,8 @@ class FdManager
      */
     public function delRowFd($uid, $fd)
     {
-        $rowKey = $this->getRowKey($this->uidFdKey, $uid);
-        $table = $this->getTable($this->uidFdKey);
+        $rowKey = $this->getRowKey(self::UID_FD_KEY, $uid);
+        $table = $this->getTable(self::UID_FD_KEY);
 
         if ($table->exist($rowKey)) {
             $row = $table->get($rowKey, $this->fdColumnName);
@@ -150,21 +149,21 @@ class FdManager
 
     public function setRowUid($fd, $uid, $token)
     {
-        $rowKey = $this->getRowKey($this->fdUidKey, $fd);
-        $this->getTable($this->fdUidKey)->set($rowKey, ['uid' => $uid, 'token' => $token]);
+        $rowKey = $this->getRowKey(self::FD_UID_KEY, $fd);
+        $this->getTable(self::FD_UID_KEY)->set($rowKey, ['uid' => $uid, 'token' => $token]);
     }
 
     public function delRowUid($fd)
     {
-        $rowKey = $this->getRowKey($this->fdUidKey, $fd);
-        $table = $this->getTable($this->fdUidKey);
+        $rowKey = $this->getRowKey(self::FD_UID_KEY, $fd);
+        $table = $this->getTable(self::FD_UID_KEY);
         return $table->del($rowKey);
     }
 
     public function getUidByFd($fd, string $field = null)
     {
-        $rowKey = $this->getRowKey($this->fdUidKey, $fd);
-        $table = $this->getTable($this->fdUidKey);
+        $rowKey = $this->getRowKey(self::FD_UID_KEY, $fd);
+        $table = $this->getTable(self::FD_UID_KEY);
         return $table->get($rowKey, $field);
     }
 
@@ -176,8 +175,8 @@ class FdManager
      */
     public function uidForeach($uid, callable $call)
     {
-        $rowKey = $this->getRowKey($this->uidFdKey, $uid);
-        $table = $this->getTable($this->uidFdKey);
+        $rowKey = $this->getRowKey(self::UID_FD_KEY, $uid);
+        $table = $this->getTable(self::UID_FD_KEY);
         if ( ! $table->exist($rowKey)) {
             return false;
         }
@@ -186,7 +185,28 @@ class FdManager
 
         foreach ($row as $colKey => $fd) {
             if ($Server->isEstablished($fd)) {
-                $call($fd);
+                $call($fd, $Server);
+            }
+        }
+    }
+
+    /**
+     * 为所有连接执行function
+     * @param callable $call
+     * @return void
+     */
+    public function allForeach(callable $call)
+    {
+        $table = $this->getTable(self::UID_FD_KEY);
+        $Server = ServerManager::getInstance()->getSwooleServer();
+        foreach ($table as $rows)
+        {
+            $fds = $this->unfmtFds($rows[$this->fdColumnName]);
+            foreach ($fds as $fd)
+            {
+                if ($Server->isEstablished($fd)) {
+                    $call($fd, $Server);
+                }
             }
         }
     }
@@ -199,8 +219,8 @@ class FdManager
     public function onlineNum($uid)
     {
         $sum = 0;
-        $table = $this->getTable($this->uidFdKey);
-        $rowKey = $this->getRowKey($this->uidFdKey, $uid);
+        $table = $this->getTable(self::UID_FD_KEY);
+        $rowKey = $this->getRowKey(self::UID_FD_KEY, $uid);
         if ($table->exist($rowKey)) {
             $row = $table->get($rowKey, $this->fdColumnName);
             $fdArray = $this->unfmtFds($row);
@@ -210,12 +230,27 @@ class FdManager
     }
 
     /**
+     * 当前所有在线的uid
+     * @return array
+     */
+    public function onlineUids()
+    {
+        $uids = [];
+        $table = $this->getTable(self::FD_UID_KEY);
+        foreach($table as $row)
+        {
+            $uids[] = $row['uid'];
+        }
+        return array_unique($uids);
+    }
+
+    /**
      * @param $fd
      * @return bool|mixed
      */
     public function fdExist($fd)
     {
-        $fdTable = $this->getTable($this->fdUidKey);
-        return $fdTable->exist($this->getRowKey($this->fdUidKey, $fd));
+        $fdTable = $this->getTable(self::FD_UID_KEY);
+        return $fdTable->exist($this->getRowKey(self::FD_UID_KEY, $fd));
     }
 }

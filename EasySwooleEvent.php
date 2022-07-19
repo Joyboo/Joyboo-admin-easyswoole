@@ -30,12 +30,7 @@ class EasySwooleEvent implements Event
         }
         $EventMainServerCreate = new EventMainServerCreate([
             'EventRegister' => $register,
-            'webSocketEvents' => [
-                EventRegister::onOpen => [Events::class, 'onOpen'],
-                EventRegister::onClose => [Events::class, 'onClose'],
-                EventRegister::onWorkerError => [Events::class, 'onError'],
-                EventRegister::onShutdown => [Events::class, 'onShutdown']
-            ],
+            'webSocketEvents' => Events::class,
             'consumerJobs' => is_array($consumers) ? $consumers : false,
         ]);
         $EventMainServerCreate->run();

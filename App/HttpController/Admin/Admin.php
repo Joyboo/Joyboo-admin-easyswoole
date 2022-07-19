@@ -21,10 +21,19 @@ class Admin extends Auth
     protected function __search()
     {
         $where = [];
+        if (is_numeric($online = $this->get['online']))
+        {
+            $FdManager = FdManager::getInstance();
+            if ($uids = $FdManager->onlineUids()) {
+                $where['id'] = [$uids, $online ? 'in' : 'not in'];
+            }
+        }
+
         if (!empty($this->get['rid']))
         {
             $where['rid'] = $this->get['rid'];
         }
+
         foreach (['username', 'realname'] as $val)
         {
             if (!empty($this->get[$val]))
@@ -37,9 +46,6 @@ class Admin extends Auth
 
     protected function __after_index($items, $total)
     {
-        /** @var \App\Model\Admin\Role $Role */
-        $Role = model_admin('Role');
-        $roleList = $Role->getRoleListAll();
         $FdManager = FdManager::getInstance();
         foreach ($items as &$value)
         {
@@ -51,7 +57,7 @@ class Admin extends Auth
                 $value->online = $FdManager->onlineNum($value['id']);
             }
         }
-        return parent::__after_index(['items' => $items, 'roleList' => $roleList], $total);
+        return parent::__after_index($items, $total);
     }
 
     public function getUserInfo()
