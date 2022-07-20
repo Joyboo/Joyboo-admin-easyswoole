@@ -18,27 +18,13 @@ class Admin extends Auth
 
     use AdminTrait;
 
-    protected function __search()
+    protected function _search($where = [])
     {
-        $where = [];
         if (is_numeric($online = $this->get['online']))
         {
             $FdManager = FdManager::getInstance();
             if ($uids = $FdManager->onlineUids()) {
                 $where['id'] = [$uids, $online ? 'in' : 'not in'];
-            }
-        }
-
-        if (!empty($this->get['rid']))
-        {
-            $where['rid'] = $this->get['rid'];
-        }
-
-        foreach (['username', 'realname'] as $val)
-        {
-            if (!empty($this->get[$val]))
-            {
-                $where[$val] = ["%{$this->get[$val]}%", 'like'];
             }
         }
         return $where;
