@@ -3,8 +3,8 @@
 
 namespace App\HttpController\Admin;
 
-use App\Common\Classes\FdManager;
 use App\Common\Languages\Dictionary;
+use WonderGame\EsUtility\Common\Classes\FdManager;
 use WonderGame\EsUtility\HttpController\Admin\AdminTrait;
 
 /**
@@ -51,8 +51,9 @@ class Admin extends Auth
         // 客户端进入页,应存id
         if (!empty($this->operinfo['extension']['homePath']))
         {
-            $Tree = new \App\Common\Classes\Tree();
-            $homePage = $Tree->originData(['type' => [[0, 1], 'in']])->getHomePath($this->operinfo['extension']['homePath']);
+            /** @var \App\Model\Admin\Menu $Menu */
+            $Menu = model_admin('Menu');
+            $homePage = $Menu->getHomePage($this->operinfo['extension']['homePath']);
         }
         $avatar = $this->operinfo['avatar'] ?? '';
 

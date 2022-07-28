@@ -2,12 +2,12 @@
 
 namespace App\Websocket\Controller;
 
-use App\Common\Classes\FdManager;
 use App\Common\Languages\Dictionary;
 use App\Websocket\Events;
 use EasySwoole\EasySwoole\Task\TaskManager;
 use EasySwoole\Socket\Client\WebSocket;
 use WonderGame\EsUtility\Common\Classes\LamJwt;
+use WonderGame\EsUtility\Common\Classes\FdManager;
 
 class Index extends BaseController
 {

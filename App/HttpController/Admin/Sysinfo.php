@@ -3,10 +3,9 @@
 
 namespace App\HttpController\Admin;
 
-
-use App\Common\Classes\FdManager;
 use Swoole\Table;
 use WonderGame\EsUtility\HttpController\Admin\SysinfoTrait;
+use WonderGame\EsUtility\Common\Classes\FdManager;
 
 /**
  * Class Sysinfo

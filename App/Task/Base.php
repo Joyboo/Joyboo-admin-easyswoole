@@ -3,10 +3,10 @@
 
 namespace App\Task;
 
-use App\Common\Classes\FdManager;
 use App\Model\Admin\Admin;
 use EasySwoole\Task\AbstractInterface\TaskInterface;
 use Swoole\WebSocket\Server as WebSocketServer;
+use WonderGame\EsUtility\Common\Classes\FdManager;
 
 abstract class Base implements TaskInterface
 {

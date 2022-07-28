@@ -5,6 +5,7 @@ namespace EasySwoole\EasySwoole;
 use App\Websocket\Events;
 use EasySwoole\EasySwoole\AbstractInterface\Event;
 use EasySwoole\EasySwoole\Swoole\EventRegister;
+use WonderGame\EsUtility\Common\Classes\FdManager;
 use WonderGame\EsUtility\EventInitialize;
 use WonderGame\EsUtility\EventMainServerCreate;
 
@@ -19,7 +20,7 @@ class EasySwooleEvent implements Event
         $EventInitialize->run();
 
         // 注册SwooleTable(WebSocket连接符管理)
-        \App\Common\Classes\FdManager::getInstance()->register();
+        FdManager::getInstance()->register();
     }
 
     public static function mainServerCreate(EventRegister $register)

@@ -2,10 +2,10 @@
 
 namespace App\Websocket\Controller\Admin;
 
-use App\Common\Classes\FdManager;
 use App\Websocket\Controller\BaseController;
 use App\Websocket\Events;
 use Swoole\WebSocket\Server as WebSocketServer;
+use WonderGame\EsUtility\Common\Classes\FdManager;
 
 class Admin extends BaseController
 {

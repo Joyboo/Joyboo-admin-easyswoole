@@ -2,8 +2,8 @@
 
 namespace App\Websocket;
 
-use App\Common\Classes\FdManager;
 use Swoole\WebSocket\Server;
+use WonderGame\EsUtility\Common\Classes\FdManager;
 
 /**
  * Class WebsocketEvents

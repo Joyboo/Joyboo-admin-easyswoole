@@ -4,6 +4,7 @@
 namespace HttpController\Admin;
 
 use PHPUnit\Framework\TestCase;
+use WonderGame\EsUtility\Common\Classes\Tree;
 
 class Menu extends TestCase
 {
@@ -24,7 +25,7 @@ class Menu extends TestCase
     public function testBuildMenu()
     {
 
-        $result = $this->Model->menuList();
+        $result = $this->Model->getTree();
         $this->assertIsArray($result);
     }
 
@@ -68,9 +69,9 @@ class Menu extends TestCase
                 'title' => '删除菜单',
             ]
         ];
-        $Tree = new \App\Common\Classes\Tree($all);
+        $Tree = new Tree(['data' => $all]);
         $data = $Tree->getAll();
-        var_dump($data);
+        print_r($data);
         $this->assertIsArray($data);
     }
 }
