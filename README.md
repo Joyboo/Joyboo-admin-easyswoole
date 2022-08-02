@@ -46,13 +46,13 @@
 
 - [x] 客户端动态路由
 - [x] jwt登录认证
-- [x] 基于Policy实现的权限认证（菜单级别、按钮级别、table单元格级别）
+- [x] 基于 [Policy](https://github.com/easy-swoole/policy) 实现的权限认证（菜单级别、按钮级别、table单元格级别）
 - [x] 单元测试
 - [x] 客户端错误日志
 - [x] 后台登录、操作日志
 - [x] 自定义异常处理器、log处理器
 - [x] migrate数据库管理
-- [x] Mysql连接池
+- [x] Mysql连接池、Redis连接池
 - [x] 封装CURD业务（继承Auth即可实现基本的CURD）
 - [x] Crontab定时任务（可视化操作动态添加、删除、传参）
 - [x] CustomProcess消费队列进程
