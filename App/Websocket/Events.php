@@ -4,6 +4,10 @@ namespace App\Websocket;
 
 use Swoole\WebSocket\Server;
 use WonderGame\EsUtility\Common\Classes\FdManager;
+use App\Common\Languages\Dictionary;
+use EasySwoole\EasySwoole\ServerManager;
+use EasySwoole\Socket\Client\WebSocket;
+use WonderGame\EsUtility\Common\Classes\LamJwt;
 
 /**
  * Class WebsocketEvents
@@ -29,6 +33,59 @@ class Events
     const EVENT_7 = 'EVENT_7';
     // 重新登录
     const EVENT_8 = 'EVENT_8';
+
+    /*
+    public static function onHandShake(\Swoole\Http\Request $request, \Swoole\Http\Response $response)
+    {
+        $token = urldecode($request->header['sec-websocket-protocol']);
+        $jwt = LamJwt::verifyToken($token, config('auth.jwtkey'));
+        $id = $jwt['data']['id'] ?? '';
+        if ($jwt['status'] !== 1 || empty($id)) {
+            $response->end();
+            return false;
+        }
+
+        $fd = $request->fd;
+
+        $FdManager = FdManager::getInstance();
+        $FdManager->setRowFd($id, $fd);
+        $FdManager->setRowUid($fd, $id, $token);
+
+
+        // websocket握手连接算法验证
+        $secWebSocketKey = $request->header['sec-websocket-key'];
+        $patten = '#^[+/0-9A-Za-z]{21}[AQgw]==$#';
+        if (0 === preg_match($patten, $secWebSocketKey) || 16 !== strlen(base64_decode($secWebSocketKey))) {
+            $response->end();
+            return false;
+        }
+        $key = base64_encode(
+            sha1(
+                $request->header['sec-websocket-key'] . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11',
+                true
+            )
+        );
+        $headers = [
+            'Upgrade' => 'websocket',
+            'Connection' => 'Upgrade',
+            'Sec-WebSocket-Accept' => $key,
+            'Sec-WebSocket-Version' => '13',
+        ];
+        if (isset($request->header['sec-websocket-protocol'])) {
+            $headers['Sec-WebSocket-Protocol'] = $request->header['sec-websocket-protocol'];
+        }
+        foreach ($headers as $key => $val) {
+            $response->header($key, $val);
+        }
+
+        $response->status(101);
+        $response->end();
+
+        // 触发Open
+        $Server = ServerManager::getInstance()->getSwooleServer();
+        self::onOpen($Server, $request);
+    }
+    */
 
     /**
      * @param Server $server
