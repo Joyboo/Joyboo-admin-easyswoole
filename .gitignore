@@ -1,7 +1,6 @@
 .idea
 .vscode
 .tgitconfig
-composer.lock
 vendor/*
 Log/*
 Temp/*

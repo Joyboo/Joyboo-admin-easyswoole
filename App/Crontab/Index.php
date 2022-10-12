@@ -4,6 +4,7 @@
 namespace App\Crontab;
 
 use App\Model\Admin\HttpTracker;
+use EasySwoole\Mysqli\QueryBuilder;
 use EasySwoole\Redis\Redis;
 use EasySwoole\Redis\Config\RedisConfig;
 use EasySwoole\Redis\Exception\RedisException;
@@ -30,18 +31,23 @@ class Index
      */
     public function delHttpTracker($args = [])
     {
-        $days = intval($args['days'] ?? 90);
-        // 最近10天不删除
-        if ($days < 10)
-        {
-            return;
+        $days = intval($args['days'] ?? 30);
+        if ($days < 10) {
+            $days = 10;
         }
 
         $begintime = strtotime("-{$days} days");
 
-        /** @var HttpTracker $model */
-        $model = model_admin('HttpTracker');
-        $model->where('instime', $begintime, '<=')->destroy();
+        $Builder = new QueryBuilder();
+        $Builder->where('instime', $begintime, '<=')->delete('http_tracker');
+
+        // 永不超时
+        $Mysqli = new Mysqli('default', ['timeout' => -1]);
+        $Res = $Mysqli->query($Builder);
+
+        $nums = $Res->getAffectedRows();
+        trace("http_reacker已删除 $nums 行，SQL=" . $Builder->getLastQuery());
+        $Mysqli->close();
     }
 
     public function pingRedis($args = [])

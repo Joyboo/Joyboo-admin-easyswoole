@@ -25,7 +25,7 @@ return [
         'dir' => EASYSWOOLE_ROOT . '/../logs',
         'level' => LoggerInterface::LOG_LEVEL_DEBUG,
         'handler' => new \WonderGame\EsUtility\Common\Classes\LamLog(),
-        'logConsole' => true,
+        'logConsole' => false,
         'displayConsole' => true,
         'ignoreCategory' => [],
         // 单独记录的日志级别 level
@@ -41,7 +41,7 @@ return [
             'host'          => '127.0.0.1',
             'port'          => 3306,
             'user'          => 'root',
-            'password'      => '0987abc123',
+            'password'      => '',
             'database'      => 'vben_admin',
             'timeout'       => 30,
             'charset'       => 'utf8mb4',

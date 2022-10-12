@@ -106,5 +106,9 @@ class Index extends BaseController
         $FdManager = FdManager::getInstance();
         $FdManager->setRowFd($id, $fd);
         $FdManager->setRowUid($fd, $id, $token);
+
+        /** @var \App\Model\Admin\LogLogin $LogLogin */
+        $LogLogin = model_admin('LogLogin');
+        $LogLogin->updateConnectTime($id);
     }
 }
