@@ -7,9 +7,4 @@ use WonderGame\EsUtility\Model\Admin\SysinfoModelTrait;
 class Sysinfo extends Base
 {
     use SysinfoModelTrait;
-
-    public function getCacheKey(): string
-    {
-        return 'JoybooSysinfo';
-    }
 }

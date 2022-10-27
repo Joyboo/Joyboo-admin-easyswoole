@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bcc87c91b909702e85e67593c8007ccf",
+    "content-hash": "b6a070fa8490c70f0c4ed41a9c228418",
     "packages": [
         {
             "name": "doctrine/instantiator",
@@ -4132,16 +4132,16 @@
         },
         {
             "name": "wonder-game/es-utility",
-            "version": "v2.3.6",
+            "version": "v2.5.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wonder-game/es-utility.git",
-                "reference": "a877442b0587ab351e0fa8837bfee5eef3fa59bb"
+                "reference": "170697fb21f37209ab45032cdf6d2d4453796136"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wonder-game/es-utility/zipball/a877442b0587ab351e0fa8837bfee5eef3fa59bb",
-                "reference": "a877442b0587ab351e0fa8837bfee5eef3fa59bb",
+                "url": "https://api.github.com/repos/wonder-game/es-utility/zipball/170697fb21f37209ab45032cdf6d2d4453796136",
+                "reference": "170697fb21f37209ab45032cdf6d2d4453796136",
                 "shasum": ""
             },
             "require": {
@@ -4187,9 +4187,9 @@
             "description": "utility for easyswoole",
             "support": {
                 "issues": "https://github.com/wonder-game/es-utility/issues",
-                "source": "https://github.com/wonder-game/es-utility/tree/v2.3.6"
+                "source": "https://github.com/wonder-game/es-utility/tree/v2.5.7"
             },
-            "time": "2022-09-27T09:15:18+00:00"
+            "time": "2022-10-24T08:50:15+00:00"
         }
     ],
     "packages-dev": [],
