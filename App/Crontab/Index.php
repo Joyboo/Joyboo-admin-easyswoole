@@ -22,34 +22,6 @@ class Index
         var_dump(date('Y-m-d H:i:s') .' test ok');
     }
 
-    /**
-     * 删N天前的链路追踪日志
-     * @param $args
-     * @return void
-     * @throws \EasySwoole\ORM\Exception\Exception
-     * @throws \Throwable
-     */
-    public function delHttpTracker($args = [])
-    {
-        $days = intval($args['days'] ?? 30);
-        if ($days < 10) {
-            $days = 10;
-        }
-
-        $begintime = strtotime("-{$days} days");
-
-        $Builder = new QueryBuilder();
-        $Builder->where('instime', $begintime, '<=')->delete('http_tracker');
-
-        // 永不超时
-        $Mysqli = new Mysqli('default', ['timeout' => -1]);
-        $Res = $Mysqli->query($Builder);
-
-        $nums = $Res->getAffectedRows();
-        trace("http_reacker已删除 $nums 行，SQL=" . $Builder->getLastQuery());
-        $Mysqli->close();
-    }
-
     public function pingRedis($args = [])
     {
         $config = config('REDIS');

@@ -50,7 +50,7 @@ class Menu
         // 日志
         $this->logs();
         // 广告投放
-        $this->ad();
+//        $this->ad();
         // 关于
 //        $this->about();
     }
