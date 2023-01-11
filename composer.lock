@@ -4132,16 +4132,16 @@
         },
         {
             "name": "wonder-game/es-utility",
-            "version": "v2.5.7",
+            "version": "v2.5.18",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wonder-game/es-utility.git",
-                "reference": "170697fb21f37209ab45032cdf6d2d4453796136"
+                "reference": "9bcda666e6ef7db07ba1e519ba8e1303f11033a2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wonder-game/es-utility/zipball/170697fb21f37209ab45032cdf6d2d4453796136",
-                "reference": "170697fb21f37209ab45032cdf6d2d4453796136",
+                "url": "https://api.github.com/repos/wonder-game/es-utility/zipball/9bcda666e6ef7db07ba1e519ba8e1303f11033a2",
+                "reference": "9bcda666e6ef7db07ba1e519ba8e1303f11033a2",
                 "shasum": ""
             },
             "require": {
@@ -4187,9 +4187,9 @@
             "description": "utility for easyswoole",
             "support": {
                 "issues": "https://github.com/wonder-game/es-utility/issues",
-                "source": "https://github.com/wonder-game/es-utility/tree/v2.5.7"
+                "source": "https://github.com/wonder-game/es-utility/tree/v2.5.18"
             },
-            "time": "2022-10-24T08:50:15+00:00"
+            "time": "2023-01-10T10:18:32+00:00"
         }
     ],
     "packages-dev": [],
