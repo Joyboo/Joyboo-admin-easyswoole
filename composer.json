@@ -15,7 +15,7 @@
         "viest/php-ext-xlswriter-ide-helper": "dev-master",
         "easyswoole/tracker": "^1.1",
         "easyswoole/policy": "^1.0",
-        "wonder-game/es-utility": "2.5.*"
+        "wonder-game/es-utility": "2.12.*"
     },
     "autoload": {
         "psr-4": {

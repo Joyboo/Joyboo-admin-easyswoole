@@ -2,6 +2,8 @@
 
 namespace App\CustomProcess;
 
+use EasySwoole\Redis\Redis;
+
 class HttpTracker extends Base
 {
     /**
@@ -9,7 +11,7 @@ class HttpTracker extends Base
      * @param $data
      * @return mixed|void
      */
-    protected function consume($data = '')
+    protected function consume($data = [], Redis $redis = null)
     {
         try {
 

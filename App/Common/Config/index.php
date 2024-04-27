@@ -2,6 +2,10 @@
 
 use EasySwoole\Log\LoggerInterface;
 
+/**
+ * 配置文件参考： https://github.com/wonder-game/es-utility/blob/master/env.php
+ */
+
 return [
     'SERVER_NAME' => "ES-Joyboo",
     'MAIN_SERVER' => [
@@ -24,8 +28,8 @@ return [
     "LOG" => [
         'dir' => EASYSWOOLE_ROOT . '/../logs',
         'level' => LoggerInterface::LOG_LEVEL_DEBUG,
-        'handler' => new \WonderGame\EsUtility\Common\Classes\LamLog(),
-        'logConsole' => false,
+        'handler' => new \WonderGame\EsUtility\Common\Logs\Handler(),
+        'logConsole' => ! is_env('produce'),
         'displayConsole' => true,
         'ignoreCategory' => [],
         // 单独记录的日志级别 level
@@ -58,12 +62,12 @@ return [
         // ... other
     ],
 
-    /* jwt */
-    'auth' => [
-        'jwtkey' => get_cfg_var('env.ES_hk-api_encrypt'),
-        'expire' => 86400 * 2, // token有效期
-        'refresh' => 86400,  // token有效期小于此值会自动续期
-        'refresh_task' => App\Task\RefreshToken::class
+    'ENCRYPT' => [
+        'jwtkey' => 'authorization', // 传递Token的Header键
+        'key' => 'Joyboo', // jwt的密钥
+        'expire' => 86400 * 3, // token有效期
+        'refresh_time' => 86400 * 2,  // token有效期小于此值会自动续期
+        'refresh_task' => \App\Task\RefreshToken::class
     ],
 
     // 不记录SQL的日志
