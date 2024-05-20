@@ -17,7 +17,9 @@ return [
         'SETTING' => [
             'worker_num' => 8,
             'reload_async' => true,
-            'max_wait_time' => 3
+            'max_wait_time' => 3,
+            'heartbeat_check_interval' => 60,
+            'heartbeat_idle_time' => 120,
         ],
         'TASK' => [
             'workerNum' => 4,
